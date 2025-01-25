@@ -3,9 +3,17 @@ import bcrypt from 'bcryptjs';
 import { generateToken } from '../lib/utils.mjs';
 export const signup = async (req, res) => {
     const { email, fullName, password, profileImage } = req.body;
+    const validateEmail = (email) => {
+        const re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+        return re.test(String(email).toLowerCase());
+    }
     try {
         if (!email || !fullName || !password) {
             return res.status(400).json({ message: 'All fields are required' });
+        }
+        
+        if (!validateEmail(email)) {
+            return res.status(400).json({ message: 'Email format is invalid' });
         }
         if (password.length < 6) {
             return res.status(400).json({ message: 'Password must be at least 6 characters long' });
