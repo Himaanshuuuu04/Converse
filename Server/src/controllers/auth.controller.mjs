@@ -1,6 +1,7 @@
 import User from '../models/user.models.mjs';
 import bcrypt from 'bcryptjs';
 import { generateToken } from '../lib/utils.mjs';
+import cloudinary from '../lib/cloudinary.mjs';
 
 const validateEmail = (email) => {
     const re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
@@ -80,6 +81,26 @@ export const logout = (req, res) => {
     }
     res.send('logout');
 };
-export const updateProfile = (req, res) => {
-    res.send('update profile')
+export const updateProfile = async (req, res) => {
+    try {
+        const { profileImage } = req.body;
+        const userId = req.user._id;
+        if (!profileImage) {
+            return res.status(400).json({ message: 'Profile image is required' });
+        }
+        const result = cloudinary.uploader.upload(profileImage);
+        const updatedUser = await User.findByIdAndUpdate(userId, { profileImage: result.url }, { new: true });
+        res.status(200).json({ message: 'Profile updated successfully', user: updatedUser });
+    } catch (error) {
+        console.log("Error in updateProfile controller: ", error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+export const checkAuth = (req, res) => {
+    try {
+        res.status(200).json(req.user);
+    } catch (error) {
+        console.log("Error in checkAuth controller: ", error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
 };

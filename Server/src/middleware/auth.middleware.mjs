@@ -11,7 +11,7 @@ export const protect = async (req, res, next) => {
         if (!decoded) {
             return res.status(401).json({ message: 'Unauthorized: Invalid token' });
         }
-        const user = await User.findById(decoded.userid).select('-password');
+        const user = await User.findById(decoded.id).select('-password');
         if (!user) {
             return res.status(404).json({ message: 'Unauthorized: User not found' });
         }
