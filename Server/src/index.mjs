@@ -1,12 +1,15 @@
 import express from 'express'
-import authRouter from './routes/auth.route.js'
-
+import authRouter from './routes/auth.route.mjs'
+import dotenv from 'dotenv'
+import { connectDB } from './lib/db.mjs'
+dotenv.config()
 const app = express()
-
+const PORT = process.env.PORT
 app.use(express.json())
 
 app.use('/auth', authRouter);
 
-app.listen(3000, () => {
-    console.log('Server is running on port 3000')
+app.listen(PORT, () => {
+    console.log('Server is running on port: ' + PORT);
+    connectDB();
 })
