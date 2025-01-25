@@ -8,12 +8,12 @@ const validateEmail = (email) => {
 }
 export const signup = async (req, res) => {
     const { email, fullName, password, profileImage } = req.body;
-    
+
     try {
         if (!email || !fullName || !password) {
             return res.status(400).json({ message: 'All fields are required' });
         }
-        
+
         if (!validateEmail(email)) {
             return res.status(400).json({ message: 'Email format is invalid' });
         }
@@ -72,13 +72,14 @@ export const login = async (req, res) => {
 
 export const logout = (req, res) => {
     try {
-        res.cookie('jwt',"",{maxAge:0});
+        res.cookie('jwt', "", { maxAge: 0 });
         res.status(200).json({ message: 'Logout successful' });
-
-
-    }  catch (error) {
+    } catch (error) {
         console.log("Error in logout controller: ", error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
     res.send('logout');
+};
+export const updateProfile = (req, res) => {
+    res.send('update profile')
 };
