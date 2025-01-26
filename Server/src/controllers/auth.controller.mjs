@@ -8,7 +8,7 @@ const validateEmail = (email) => {
     return re.test(String(email).toLowerCase());
 }
 export const signup = async (req, res) => {
-    const { email, fullName, password, profileImage } = req.body;
+    const { email, fullName, password } = req.body;
 
     try {
         if (!email || !fullName || !password) {
