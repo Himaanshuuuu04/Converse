@@ -11,6 +11,7 @@ const initialState = {
     error: null
 };
 
+
 export const checkAuth = createAsyncThunk('auth/checkAuth', async (_, { rejectWithValue }) => {
     try {
         const res = await axiosInstance.get('/auth/check');
