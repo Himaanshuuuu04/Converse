@@ -30,15 +30,25 @@ export const getMessages = async (req, res) => {
 
 export const sendMessage = async (req, res) => {
     try {
-        const { text, image } = req.body;
+        const { text, image, audio } = req.body;
         const { id: receiverID } = req.params;
         const senderID = req.user._id;
         let imageUrl;
+        let audioUrl;
         if (image) {
-            const result = await cloudinary.uploader.upload(image);
+            const result = await cloudinary.uploader.upload(image, {
+                folder: 'chat-images'
+            });
             imageUrl = result.url;
         }
-        const message = new Message({ senderID, receiverID, text, image: imageUrl });
+        if (audio) {
+            const result = await cloudinary.uploader.upload(audio, {
+                folder: 'chat-audio',
+                resource_type: 'video'
+            });
+            audioUrl = result.url;
+        }
+        const message = new Message({ senderID, receiverID, text, image: imageUrl, audio: audioUrl });
         await message.save();
 
         // real time functionality using socket.io
