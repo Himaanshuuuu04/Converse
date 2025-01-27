@@ -14,6 +14,8 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { signup } from "@/redux/slice/authSlice";
 
 const formSchema = z.object({
   fullName: z.string().min(2, {
@@ -36,15 +38,16 @@ export function SignInForm() {
       password: "",
     },
   });
-
+  const dispatch = useDispatch();
   const handleSubmit = (data) => {
     console.log(data);
+    dispatch(signup(data));
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
-      <FormField
+        <FormField
           control={form.control}
           name="fullName"
           render={({ field }) => (
@@ -52,8 +55,8 @@ export function SignInForm() {
               <FormLabel>Full Name</FormLabel>
               <FormControl>
                 <Input placeholder="Enter your full name" {...field}
-                className="w-full border border-white/20 rounded-lg k  focus:outline-none focus:ring-2 focus:ring-white focus:border-white sm:text-sm"
-                 />
+                  className="w-full border border-white/20 rounded-lg k  focus:outline-none focus:ring-2 focus:ring-white focus:border-white sm:text-sm"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -67,8 +70,8 @@ export function SignInForm() {
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input placeholder="Enter your email" {...field}
-                className="w-full border border-white/20 rounded-lg k  focus:outline-none focus:ring-2 focus:ring-white focus:border-white sm:text-sm"
-                 />
+                  className="w-full border border-white/20 rounded-lg k  focus:outline-none focus:ring-2 focus:ring-white focus:border-white sm:text-sm"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
