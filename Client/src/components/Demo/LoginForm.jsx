@@ -14,6 +14,8 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../../redux/slice/authSlice";
 
 const formSchema = z.object({
   email: z.string().min(2, {
@@ -25,6 +27,7 @@ const formSchema = z.object({
 });
 
 export function LoginForm() {
+  const dispatch = useDispatch();
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -35,6 +38,7 @@ export function LoginForm() {
 
   const handleSubmit = (data) => {
     console.log(data);
+    dispatch(login(data));
   };
 
   return (
@@ -48,8 +52,8 @@ export function LoginForm() {
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input placeholder="Enter your email" {...field}
-                className="w-full border border-white/20 rounded-lg k  focus:outline-none focus:ring-2 focus:ring-white focus:border-white sm:text-sm"
-                 />
+                  className="w-full border border-white/20 rounded-lg k  focus:outline-none focus:ring-2 focus:ring-white focus:border-white sm:text-sm"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -23,7 +23,7 @@ export const checkAuth = createAsyncThunk('auth/checkAuth', async (_, { rejectWi
 });
 export const updateProfile = createAsyncThunk('auth/updateProfile', async (data, { rejectWithValue }) => {
     try {
-        const res = await axiosInstance.put('/auth/update', data);
+        const res = await axiosInstance.put('/auth/update-profile', data);
         return { authUser: res.data };
     } catch (err) {
         console.log("error in updateProfile: ", err);
@@ -32,19 +32,21 @@ export const updateProfile = createAsyncThunk('auth/updateProfile', async (data,
 })
 export const signup = createAsyncThunk('auth/signup', async (data, { rejectWithValue }) => {
     try {
-        console.log("data at authSlice:");
-        console.log(data);
         const res = await axiosInstance.post('/auth/signup', data);
-        console.log(res.data);
         return { authUser: res.data };
     } catch (err) {
         console.log("error in signup: ", err);
-        return rejectWithValue(err);
+        return rejectWithValue({
+            message: err.message,
+            code: err.code,
+            response: err.response?.data || null, // Include server response if available
+        });
     }
 })
 export const login = createAsyncThunk('auth/login', async (data, { rejectWithValue }) => {
     try {
         const res = await axiosInstance.post('/auth/login', data);
+        console.log(res.data);
         return { authUser: res.data };
     } catch (err) {
         console.log("error in login: ", err);

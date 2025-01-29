@@ -39,7 +39,8 @@ export default function App() {
         <Route path="/" element={<Home />} />
         {/* <Route path="*" element={authUser ? <Home /> : navigate('/login')} /> */}
         <Route path="/login" element={<Login />} />
-        <Route path="/signin" element={!authUser ? <SignIn /> : navigate('/')} />
+        <Route path="/signin" element={<SignIn />} />
+        {/* <Route path="/signin" element={!authUser ? <SignIn /> : navigate('/')} /> */}
         <Route path="/update-profile" element={<UpdateProfile />} />
       </Routes>
 
