@@ -83,26 +83,34 @@ export const logout = (req, res) => {
 };
 export const updateProfile = async (req, res) => {
     try {
-        const { fullName, about, profileImage } = req.body;
+        console.log("Request body:", req.body);
+        console.log("Uploaded file:", req.file);
+        const { fullName, about } = req.body;
         const userId = req.user._id;
-        if (!profileImage && !fullName && !about) {
+        if (!req.file && !fullName && !about) {
             return res.status(400).json({ message: 'No fields to update' });
         }
-        if (profileImage) {
-            const result = cloudinary.uploader.upload(profileImage);
-            const updatedUser = await User.findByIdAndUpdate(userId, { profileImage: result.url, fullName, about }, { new: true });
-            res.status(200).json({ message: 'Profile updated successfully', user: updatedUser });
+        let profileImageUrl;
+        if (req.file) {
+            const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+            const result = await cloudinary.uploader.upload(base64Image, {
+                folder: "profile_pictures",
+            });
+            profileImageUrl = result.secure_url;
         }
-        else if (fullName) {
-            const updatedUser = await User.findByIdAndUpdate(userId, { fullName, about }, { new: true });
-            res.status(200).json({ message: 'Profile updated successfully', user: updatedUser });
-        }
-        else if (about) {
-            const updatedUser = await User.findByIdAndUpdate(userId, { about }, { new: true });
-            res.status(200).json({ message: 'Profile updated successfully', user: updatedUser });
-        }
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            {
+                ...(profileImageUrl && { profileImage: profileImageUrl }),
+                ...(fullName && { fullName }),
+                ...(about && { about })
+            },
+            { new: true }
+        ).select('-password');
+
+        res.status(200).json(updatedUser);
     } catch (error) {
-        console.log("Error in updateProfile controller: ", error);
+        console.error("Error in updateProfile controller:", error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };

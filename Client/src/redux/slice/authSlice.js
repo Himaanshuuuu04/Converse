@@ -21,15 +21,23 @@ export const checkAuth = createAsyncThunk('auth/checkAuth', async (_, { rejectWi
         return rejectWithValue(err);
     }
 });
-export const updateProfile = createAsyncThunk('auth/updateProfile', async (data, { rejectWithValue }) => {
-    try {
-        const res = await axiosInstance.put('/auth/update-profile', data);
-        return { authUser: res.data };
-    } catch (err) {
-        console.log("error in updateProfile: ", err);
-        return rejectWithValue(err);
+export const updateProfile = createAsyncThunk(
+    "auth/updateProfile",
+    async (data, { rejectWithValue }) => {
+        try {
+            const res = await axiosInstance.put("/auth/update-profile", data, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+                withCredentials: true,
+            });
+            return { authUser: res.data };
+        } catch (err) {
+            console.error("Error in updateProfile:", err);
+            return rejectWithValue(err.response?.data || { message: "An error occurred" });
+        }
     }
-})
+);
 export const signup = createAsyncThunk('auth/signup', async (data, { rejectWithValue }) => {
     try {
         const res = await axiosInstance.post('/auth/signup', data);
@@ -39,7 +47,7 @@ export const signup = createAsyncThunk('auth/signup', async (data, { rejectWithV
         return rejectWithValue({
             message: err.message,
             code: err.code,
-            response: err.response?.data || null, // Include server response if available
+            response: err.response?.data || null,
         });
     }
 })

@@ -33,16 +33,13 @@ export function UpdateForm() {
         defaultValues: {
             fullName: authUser?.fullName || "",
             about: authUser?.about || "",
-            profileImage: authUser?.profileImage || "",
         },
     });
-
     useEffect(() => {
         if (authUser) {
             form.reset({
                 fullName: authUser.fullName || "",
                 about: authUser.about || "",
-                profileImage: authUser?.profileImage || "",
             });
             setPreviewImage(authUser?.profileImage || defaultUserImage);
         }
@@ -52,16 +49,18 @@ export function UpdateForm() {
         const file = e.target.files[0];
         if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = () => setPreviewImage(reader.result);
-        reader.readAsDataURL(file);
-
+        setPreviewImage(URL.createObjectURL(file));
         form.setValue("profileImage", file);
     };
 
     const handleSubmit = (data) => {
-        console.log(data);
-        dispatch(updateProfile(data));
+        const formData = new FormData();
+        formData.append('fullName', data.fullName);
+        formData.append('about', data.about);
+        if (data.profileImage) {
+            formData.append('profileImage', data.profileImage);
+        }
+        dispatch(updateProfile(formData));
     };
 
     return (
