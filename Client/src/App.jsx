@@ -1,49 +1,52 @@
-import { Routes, Route, useNavigate } from 'react-router-dom';
-import Home from './pages/Home';
-import Login from "./pages/Login";
-import SignIn from "./pages/SignIn";
+import { Routes, Route} from "react-router-dom";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from 'react';
 import { checkAuth } from "./redux/slice/authSlice";
 import { ProgressDemo } from "./components/Demo/ProgressDemo";
-import { SparklesCore } from "./components/ui/sparkles";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import SignIn from "./pages/SignIn";
 import UpdateProfile from "./pages/UpdateProfile";
+import Layout from "./components/ui/Layout";
+import { SparklesCore } from "@/components/ui/sparkles";
+import { Toaster } from "@/components/ui/toaster";
 export default function App() {
-  const navigate = useNavigate();
-  const { authUser, isCheckingUser } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  
+  const { authUser, isCheckingUser } = useSelector((state) => state.auth);
+  
+
   useEffect(() => {
     dispatch(checkAuth());
-  }, []);
+  }, [dispatch]);
 
-  if (!authUser && isCheckingUser) {
-    <div >
-      <ProgressDemo />
-    </div>
+  
+  if (isCheckingUser) {
+    return <div className="h-screen w-screen flex items-center justify-center"><ProgressDemo /></div>;
   }
+
   return (
-    <>
-      <div className="w-full absolute inset-0 h-screen">
+    <div>
+      <div className="w-screen absolute inset-0 h-screen -z-50">
         <SparklesCore
           id="tsparticlesfullpage"
-          background="transparent"
-          minSize={0.2}
-          maxSize={0.8}
+          background="#000000"
+          minSize={0.1}
+          maxSize={0.7}
           particleDensity={70}
           className="w-full h-full"
           particleColor="#FFFFFF"
         />
       </div>
+      <Toaster />
       <Routes>
-        {/* <Route path="/" element={authUser ? <Home /> : navigate('/signin')} /> */}
-        <Route path="/" element={<Home />} />
-        {/* <Route path="*" element={authUser ? <Home /> : navigate('/login')} /> */}
+        <Route element={<Layout />}>
+          <Route path="/" element={authUser ? <Home /> : <SignIn />} />
+          <Route path="/update-profile" element={authUser ? <UpdateProfile /> : <Login />} />
+        </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/signin" element={<SignIn />} />
-        {/* <Route path="/signin" element={!authUser ? <SignIn /> : navigate('/')} /> */}
-        <Route path="/update-profile" element={<UpdateProfile />} />
       </Routes>
-
-    </>
+    </div>
   );
 }

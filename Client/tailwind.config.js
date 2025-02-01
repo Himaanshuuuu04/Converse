@@ -8,6 +8,7 @@ export default {
     "./src/**/*.{js,jsx}", // Your JS and JSX files
     "./node_modules/@shadcn/ui/components/**/*.{js,jsx}", // ShadCN components
   ],
+  darkMode: "class",
   theme: {
   	extend: {
 		fontFamily: {

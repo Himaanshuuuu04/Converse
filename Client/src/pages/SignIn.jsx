@@ -4,7 +4,7 @@ import Spline from '@splinetool/react-spline';
 
 export default function SignIn() {
   return (
-    <div className="h-screen w-screen flex items-center justify-center dark bg-black text-white">
+    <div className="h-screen w-screen flex items-center justify-center text-white">
 
       {/* Container for both sides of the screen */}
       <div className="w-full sm:w-1/2 flex flex-col items-center justify-center px-4 sm:px-0">

@@ -64,7 +64,7 @@ export function UpdateForm() {
     };
 
     return (
-        <div className="h-screen w-screen flex items-center justify-center dark bg-black text-white">
+        <div className="h-screen w-screen flex items-center justify-center  text-white z-20">
             <div className="w-full max-w-sm border-white/20 border px-8 py-6 rounded-xl backdrop-filter backdrop-blur-sm">
                 <div className="text-center text-white">
                     <h1 className="text-2xl font-semibold">Update Your Profile</h1>

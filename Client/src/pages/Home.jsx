@@ -1,11 +1,9 @@
 import {Button} from "../components/ui/button";
-
+import { SidebarDemo } from "@/components/Demo/SidebarDemo";
 export default function Home() {
     return (
-        <div className="h-screen w-screen bg-black">
-            <h1 className="text-red-500">Home</h1>
-            
-            <Button variant="destructive">Login</Button>
+        <div className="w">
+            {/* <SidebarDemo /> */}
         </div>
     );
 }
