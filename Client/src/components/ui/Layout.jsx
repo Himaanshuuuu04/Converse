@@ -5,13 +5,14 @@ import {
     IconUserBolt,
   } 
 from "@tabler/icons-react";
+import defaultImage from "../../assets/defaultUserImage.jpeg";
 import {Link,Outlet } from "react-router-dom";
 import {  useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/Sidebar";
 import { motion } from "framer-motion";
-
+import {useSelector} from "react-redux";
 const links = [
     {
       label: "Chats",
@@ -36,6 +37,8 @@ const links = [
   ];
 export default function Layout() {
     const [open, setOpen] = useState(false);
+    const { authUser } = useSelector((state) => state.auth);
+    console.log(authUser);
     return (
         <div className="h-screen w-screen overflow-hidden">
     
@@ -57,11 +60,11 @@ export default function Layout() {
             <div>
               <SidebarLink
                 link={{
-                  label: "Manu Arora",
+                  label: `${authUser.fullName}`,
                   href: "#",
                   icon: (
                     <img
-                      src="https://assets.aceternity.com/manu.png"
+                      src={authUser.profileImage || defaultImage}
                       className="h-7 w-7 flex-shrink-0 rounded-full"
                       alt="Avatar"
                     />
