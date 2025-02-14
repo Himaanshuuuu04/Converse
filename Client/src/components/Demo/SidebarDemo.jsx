@@ -8,7 +8,7 @@ import {
 } from "@tabler/icons-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 export function SidebarDemo() {
   const links = [
     {
@@ -51,11 +51,11 @@ export function SidebarDemo() {
                 label: "Manu Arora",
                 href: "#",
                 icon: (
-                  <img
-                    src="https://assets.aceternity.com/manu.png"
-                    className="h-7 w-7 flex-shrink-0 rounded-full"
-                    alt="Avatar"
-                  />
+                  <Avatar>
+                    <AvatarImage src="https://github.com/shadcn.png" />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+
                 ),
               }}
             />
