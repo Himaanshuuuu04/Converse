@@ -23,7 +23,7 @@ export const getUsers = createAsyncThunk('message/users', async (_, { rejectWith
     }
 });
 
-export const getMessages = createAsyncThunk('message/id', async (data, { rejectWithValue }) => {
+export const getMessages = createAsyncThunk('message/messages', async (data, { rejectWithValue }) => {
     try {
         const res = await axiosInstance.get(`/message/${data.id}`);
         return { messages: res.data };
@@ -33,12 +33,26 @@ export const getMessages = createAsyncThunk('message/id', async (data, { rejectW
     }
 });
 
+export const sendMessage = createAsyncThunk('message/send-message', async (data, { rejectWithValue }) => {
+    try {
+        const state = select.getState().chat;
+        const { selectedUser, messages } = state;
+        if (!selectedUser) {
+            throw new Error("No user selected");
+        }
+        const res = await axiosInstance.post(`/message/send-message/${selectedUser._id}`, data);
+        return { messages: [...messages, res.data] };
+    } catch (err) {
+        console.log("error in sendMessage: ", err);
+        return rejectWithValue(err);
+    }
+});
+
 export const chatSlice = createSlice({
     name: 'chat',
     initialState,
     reducers: {
         setSelectedUser: (state, action) => {
-            console.log("selected user: ", action.payload);
             state.selectedUser = action.payload;
         }
     },
@@ -66,6 +80,9 @@ export const chatSlice = createSlice({
                 state.isMessageLoading = false;
                 state.error = action.payload;
             })
+            .addCase(sendMessage.fulfilled, (state, action) => {
+                state.messages = action.payload.messages;
+            });
     },
 });
 
