@@ -14,7 +14,7 @@ import {
     FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import { Camera, User, FileText } from "lucide-react";
+import { Camera, User, FileText ,CalendarDays} from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateProfile } from "../../redux/slice/authSlice";
 
@@ -138,16 +138,10 @@ export function UpdateForm() {
                                 </FormItem>
                             )}
                         />
-                        <div className="h-8">
-                            
-                        </div>
-                        
-                        <Button type="submit" className="w-full" disabled={isUpdatingProfile}>
-                            {isUpdatingProfile ? "Saving..." : "Save Changes"}
-                        </Button>
-                        <div className="flex items-center justify-between py-2 border-b border-zinc-700">
-                            <span className="text-gray-400">Member Since:</span>
-                            <span className="font-medium">
+                        <div className="flex items-center justify-between py-2 border-b border-zinc-700 text-sm">
+                            <CalendarDays className="w-4 h-4 inline-block mr-2"/>
+                            <span className="text-gray-400 -ml-20 "> Member Since:</span>
+                            <span className="font-lighter">
                                 {new Date(authUser?.createdAt).toLocaleDateString("en-US", {
                                     day: "numeric",
                                     month: "long",
@@ -155,6 +149,11 @@ export function UpdateForm() {
                                 })}
                             </span>
                         </div>
+                        
+                        <Button type="submit" className="w-full" disabled={isUpdatingProfile}>
+                            {isUpdatingProfile ? "Saving..." : "Save Changes"}
+                        </Button>
+                        
                     </form>
                 </Form>
             </div>
