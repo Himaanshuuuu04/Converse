@@ -62,3 +62,32 @@
     @apply bg-background text-foreground;
   }
 }
+@layer components {
+
+  /* Customize the scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  /* Customize the scrollbar thumb */
+  ::-webkit-scrollbar-thumb {
+    background-color: #1d1d1d;
+    /* Dark gray thumb to match dark background */
+    border-radius: 8px;
+  }
+
+
+  /* Customize the scrollbar thumb when hovered */
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #363636;
+    /* Slightly lighter gray for hover effect */
+  }
+
+  /* Customize the scrollbar track */
+  ::-webkit-scrollbar-track {
+    background-color: #090909;
+    /* Black track to match the overall background */
+    border-radius: 8px;
+  }
+}
