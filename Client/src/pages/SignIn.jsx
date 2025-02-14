@@ -2,6 +2,7 @@ import { SignInForm } from "../components/Demo/SignInForm";
 import { NavLink } from "react-router-dom";
 import Spline from '@splinetool/react-spline';
 
+
 export default function SignIn() {
   return (
     <div className="h-screen w-screen flex items-center justify-center text-white">
@@ -30,8 +31,8 @@ export default function SignIn() {
       </div>
 
       {/* 3D Animation or Image Section */}
-      <div className="w-full sm:w-1/2 h-full z-50 mt-8 sm:mt-0 sm:block hidden">
-        <Spline scene="https://prod.spline.design/ggXpNO7mNsPAqhg0/scene.splinecode" />
+      <div className="w-full sm:w-2/3 h-full z-50  sm:mt-0 sm:block ">
+        <Spline scene="https://prod.spline.design/JOkpUHCnGytcdudt/scene.splinecode" />
       </div>
     </div>
   );

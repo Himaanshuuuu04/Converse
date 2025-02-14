@@ -30,7 +30,7 @@ export default function Login() {
       </div>
 
       {/* Spline Animation/Graphic */}
-      <div className="w-full sm:w-1/2 h-full z-50  sm:mt-0 sm:block ">
+      <div className="w-full sm:w-2/3 h-full z-50  sm:mt-0 sm:block ">
         <Spline scene="https://prod.spline.design/JOkpUHCnGytcdudt/scene.splinecode" />
       </div>
     </div>

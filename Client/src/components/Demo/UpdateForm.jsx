@@ -18,6 +18,7 @@ import { Camera, User, FileText } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateProfile } from "../../redux/slice/authSlice";
 
+
 const formSchema = z.object({
     fullName: z.string().min(2, { message: "Enter the full name for Signin." }).optional(),
     about: z.string().optional(),
@@ -137,7 +138,10 @@ export function UpdateForm() {
                                 </FormItem>
                             )}
                         />
-
+                        <div className="h-8">
+                            
+                        </div>
+                        
                         <Button type="submit" className="w-full" disabled={isUpdatingProfile}>
                             {isUpdatingProfile ? "Saving..." : "Save Changes"}
                         </Button>
