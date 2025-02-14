@@ -29,43 +29,23 @@ const notifications = [
 export const CardDemo = ({ className, ...props }) => (
   <Card className={cn("w-[380px]", className)} {...props}>
     <CardHeader>
-      <CardTitle>Notifications</CardTitle>
-      <CardDescription>You have 3 unread messages.</CardDescription>
+      <CardTitle className="text-center">Search Users</CardTitle>
+      <CardDescription className="text-center">You can only search people ,whorm you follow</CardDescription>
     </CardHeader>
     <CardContent className="grid gap-4">
-      <div className="flex items-center space-x-4 rounded-md border p-4">
-        <BellRing />
-        <div className="flex-1 space-y-1">
-          <p className="text-sm font-medium leading-none">Push Notifications</p>
-          <p className="text-sm text-muted-foreground">
-            Send notifications to device.
-          </p>
+      <div className="flex items-center space-x-4 rounded-md border py-2 px-4">
+        <div className="flex space-y-1">
+          <img src="https://i.pinimg.com/236x/ab/1f/e7/ab1fe7397baf85974c354889cb082d89.jpg" alt="" className="h-8 w-8 object-cover rounded-full"/>
         </div>
-        <Switch />
+        <div className="flex flex-col justify-items-center">
+          <span>Vansh  </span>
+          <span className="text-xs text-muted-foreground">Online  </span>
+        </div>
       </div>
-      <div>
-        {notifications.map((notification, index) => (
-          <div
-            key={index}
-            className="mb-4 grid grid-cols-[25px_1fr] items-start pb-4 last:mb-0 last:pb-0"
-          >
-            <span className="flex h-2 w-2 translate-y-1 rounded-full bg-sky-500" />
-            <div className="space-y-1">
-              <p className="text-sm font-medium leading-none">
-                {notification.title}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {notification.description}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
+      
     </CardContent>
     <CardFooter>
-      <Button className="w-full">
-        <Check /> Mark all as read
-      </Button>
+     
     </CardFooter>
   </Card>
 );
