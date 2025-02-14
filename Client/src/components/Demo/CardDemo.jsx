@@ -46,7 +46,7 @@ export const CardDemo = ({ className, ...props }) => {
       </CardHeader>
     </div>
     
-    <CardContent className="grid gap-0  p-0 overflow-y-auto">
+    <CardContent className="grid gap-0 p-0 overflow-y-auto">
     {isUserLoading ? (
           <div className="text-center text-zinc-500 py-4">Loading users...</div>
         ) : users.length === 0 ? (
