@@ -2,8 +2,8 @@ import User from '../models/user.models.mjs';
 import Message from '../models/message.models.mjs';
 export const getUsersForSideBar = async (req, res) => {
     try {
-        const loogedUserId = req.user._id;
-        const users = await User.find({ _id: { $ne: loogedUserId } }).select('-password');
+        const loggedUserId = req.user._id;
+        const users = await User.find({ _id: { $ne: loggedUserId } }).select('-password');
         res.status(200).json(users);
     } catch (error) {
         console.log("Error in getUsersForSideBar controller: ", error);
