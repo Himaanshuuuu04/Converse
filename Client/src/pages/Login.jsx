@@ -12,7 +12,7 @@ export default function Login() {
         <h1 className="text-3xl font-medium tracking-wide mb-4 text-center sm:text-left">
           Login to <strong className="text-blue-400">Converse</strong>
         </h1>
-        
+
         {/* Login Form */}
         <div className="w-full max-w-sm border-white/20 border px-8 py-6 rounded-xl backdrop-filter backdrop-blur-sm">
 

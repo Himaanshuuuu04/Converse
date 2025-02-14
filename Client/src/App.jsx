@@ -1,4 +1,4 @@
-import { Routes, Route} from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { checkAuth } from "./redux/slice/authSlice";
@@ -12,15 +12,15 @@ import { SparklesCore } from "@/components/ui/sparkles";
 import { Toaster } from "@/components/ui/toaster";
 export default function App() {
   const dispatch = useDispatch();
-  
+
   const { authUser, isCheckingUser } = useSelector((state) => state.auth);
-  
+
 
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
 
-  
+
   if (isCheckingUser) {
     return <div className="h-screen w-screen flex items-center justify-center"><ProgressDemo /></div>;
   }
