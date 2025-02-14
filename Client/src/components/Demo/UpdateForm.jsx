@@ -141,6 +141,16 @@ export function UpdateForm() {
                         <Button type="submit" className="w-full" disabled={isUpdatingProfile}>
                             {isUpdatingProfile ? "Saving..." : "Save Changes"}
                         </Button>
+                        <div className="flex items-center justify-between py-2 border-b border-zinc-700">
+                            <span className="text-gray-400">Member Since:</span>
+                            <span className="font-medium">
+                                {new Date(authUser?.createdAt).toLocaleDateString("en-US", {
+                                    day: "numeric",
+                                    month: "long",
+                                    year: "numeric",
+                                })}
+                            </span>
+                        </div>
                     </form>
                 </Form>
             </div>
