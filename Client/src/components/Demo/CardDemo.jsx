@@ -46,14 +46,14 @@ export const CardDemo = ({ className, ...props }) => {
       </CardHeader>
     </div>
     
-    <CardContent className="grid gap-0 p-0 overflow-y-auto">
+    <CardContent className="grid gap-0  p-0 overflow-y-auto">
     {isUserLoading ? (
           <div className="text-center text-zinc-500 py-4">Loading users...</div>
         ) : users.length === 0 ? (
           <div className="text-center text-zinc-500 py-4">No users found</div>
         ) : (
-    users.map((user) => (
-      <button
+          users.map((user) => (
+            <button
               key={user._id}
               onClick={() => dispatch(setSelectedUser(user._id))}
               className={cn(
@@ -62,22 +62,23 @@ export const CardDemo = ({ className, ...props }) => {
               )}
             >
               <Avatar>
-                <AvatarImage src={user.profileImage || defaultUserImage} className="object-cover"/>
+                <AvatarImage src={user.profileImage || defaultUserImage} className="object-cover" />
                 <AvatarFallback>{user.name}</AvatarFallback>
               </Avatar>
               <div className="flex flex-col items-start flex-1">
                 <span>{user.fullName}</span>
                 <span className="text-xs text-muted-foreground">Online</span>
               </div>
-              <div className="flex items-center justify-end"><ChevronRight className="w-4 h-4 text-white/50"/></div>
+              <div className="flex items-center justify-end"><ChevronRight className="w-4 h-4 text-white/50" /></div>
             </button>
-    
-    ))
-        )}  
-      
-    </CardContent>
-    <CardFooter>
-     
-    </CardFooter>
-  </Card>
-)};
+
+          ))
+        )}
+
+      </CardContent>
+      <CardFooter>
+
+      </CardFooter>
+    </Card>
+  )
+};
