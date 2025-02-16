@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "../ui/scroll-area";
-
+import Loader from "../ui/Bear";
 export default function ChatAreaDemo() {
     const { messages, selectedUserData } = useSelector((state) => state.chat);
     const { authUser } = useSelector((state) => state.auth);
@@ -10,8 +10,8 @@ export default function ChatAreaDemo() {
         <div className="flex flex-col w-full h-full z-0 overflow-hidden">
             <ScrollArea className="h-full w-full">
                 {messages?.length === 0 ? (
-                    <div className="flex items-center justify-center h-full">
-                        <p className="text-lg text-gray-500">No messages</p>
+                    <div className="flex  items-center w-full justify-center h-full">
+                        <Loader />
                     </div>
                 ) : null}
 
@@ -36,7 +36,7 @@ export default function ChatAreaDemo() {
                                                         : "bg-white/10"
                                                 } h-fit-content max-w-80 text-sm`}
                                             >
-                                                {message.text}
+                                                {message.text === "" ? <img src={message.image} className="my-2 rounded-md" alt="message" /> : message.text}
                                             </div>
                                             <span className="text-xs mt-2 text-muted-foreground">
                                                 {new Date(message.createdAt).toLocaleString("en-US", {

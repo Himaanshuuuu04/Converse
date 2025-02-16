@@ -9,6 +9,7 @@ import {
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { AlertDialogDemo } from "./AlertDialogDemo";
 export function SidebarDemo() {
   const links = [
     {
@@ -41,7 +42,7 @@ export function SidebarDemo() {
             <Logo />
             <div className="mt-8 flex flex-col gap-2">
               {links.map((link, idx) => (
-                <SidebarLink key={idx} link={link} />
+                <SidebarLink key={idx} link={link} onClick={() => setOpen(false)} />
               ))}
             </div>
           </div>
