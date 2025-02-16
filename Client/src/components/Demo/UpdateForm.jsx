@@ -65,11 +65,11 @@ export function UpdateForm() {
     };
 
     return (
-        <div className="h-screen w-screen flex items-center justify-center  text-white z-20">
+        <div className="h-screen w-full border-l flex items-center justify-center  text-white z-20">
             <div className="w-full max-w-sm border-white/20 border px-8 py-6 rounded-xl backdrop-filter backdrop-blur-sm">
                 <div className="text-center text-white">
                     <h1 className="text-2xl font-semibold">Update Your Profile</h1>
-                    <p className="mt-2 text-sm">Edit your details below and save changes.</p>
+                    <p className="mt-2 text-sm">Edit your details below and save the changes.</p>
                 </div>
 
                 {/* Profile Image Upload */}
@@ -78,11 +78,11 @@ export function UpdateForm() {
                         <img
                             src={previewImage}
                             alt="Profile"
-                            className="w-32 h-32 rounded-full object-cover border-4 border-gray-600"
+                            className="w-32 h-32 rounded-full object-cover border border-white"
                         />
                         <label
                             htmlFor="avatar-upload"
-                            className="absolute bottom-0 right-0 bg-gray-600 hover:scale-105 p-2 rounded-full cursor-pointer transition-all duration-200"
+                            className="absolute bottom-0 right-0 bg-black border hover:scale-105 p-2 rounded-full cursor-pointer transition-all duration-200"
                         >
                             <Camera className="w-5 h-5 text-white" />
                             <input
