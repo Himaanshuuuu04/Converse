@@ -1,7 +1,90 @@
-export default function ChatAreaDemo() {    
+import { useSelector } from "react-redux";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "../ui/scroll-area";
+
+export default function ChatAreaDemo() {
+    const { messages, selectedUserData } = useSelector((state) => state.chat);
+    const { authUser } = useSelector((state) => state.auth);
+
     return (
-        <div className="flex flex-col w-full h-full">
-           s
+        <div className="flex flex-col w-full h-full z-0 overflow-hidden">
+            <ScrollArea className="h-full w-full">
+                {messages?.length === 0 ? (
+                    <div className="flex items-center justify-center h-full">
+                        <p className="text-lg text-gray-500">No messages</p>
+                    </div>
+                ) : null}
+
+                {messages.map((message, index) => {
+                    return (
+                        <>
+                            {message.senderID === selectedUserData._id ? (
+                                <div key={index} className="flex flex-col items-start p-4">
+                                    <div className="flex space-x-2">
+                                        <Avatar>
+                                            <AvatarImage
+                                                src={selectedUserData.profileImage || defaultUserImage}
+                                                className="object-cover"
+                                            />
+                                            <AvatarFallback>{selectedUserData.name}</AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex flex-col">
+                                            <div
+                                                className={`p-2 px-4 rounded-xl ${
+                                                    message.sender === selectedUserData._id
+                                                        ? "bg-white/10 text-white"
+                                                        : "bg-white/10"
+                                                } h-fit-content max-w-80 text-sm`}
+                                            >
+                                                {message.text}
+                                            </div>
+                                            <span className="text-xs mt-2 text-muted-foreground">
+                                                {new Date(message.createdAt).toLocaleString("en-US", {
+                                                    month: "short",
+                                                    day: "numeric",
+                                                    hour: "2-digit",
+                                                    minute: "2-digit",
+                                                })}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div key={index} className="flex flex-col p-4 items-end">
+                                    <div className="flex space-x-2">
+                                        <div className="flex flex-col">
+                                            <div
+                                                className={`p-2 px-4 rounded-xl ${
+                                                    message.sender === selectedUserData._id
+                                                        ? "bg-white/10 text-white"
+                                                        : "bg-white/10"
+                                                } h-fit-content max-w-80 text-sm`}
+                                            >
+                                                {message.text}
+                                            </div>
+                                            <span className="text-xs mt-2 text-muted-foreground text-right">
+                                                {new Date(message.createdAt).toLocaleString("en-US", {
+                                                    month: "short",
+                                                    day: "numeric",
+                                                    hour: "2-digit",
+                                                    minute: "2-digit",
+                                                })}
+                                            </span>
+                                        </div>
+                                        <Avatar>
+                                            <AvatarImage
+                                                src={authUser.profileImage || defaultUserImage}
+                                                className="object-cover"
+                                            />
+                                            <AvatarFallback>{authUser.name}</AvatarFallback>
+                                        </Avatar>
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    );
+                })}
+            </ScrollArea>
         </div>
-    )
+    );
 }

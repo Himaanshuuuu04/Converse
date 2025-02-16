@@ -5,7 +5,7 @@ import { Video } from 'lucide-react';
 import { Phone } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { X } from 'lucide-react';
-import { setSelectedUserData, setSelectedUser } from "@/redux/slice/chatSlice"
+import { setSelectedUserData, setSelectedUser,getMessages } from "@/redux/slice/chatSlice"
 import {
     Tooltip,
     TooltipContent,
@@ -22,6 +22,7 @@ export default function TopBarDemo() {
             const user = users.find((user) => user._id === selectedUser);
             if (user) {
                 dispatch(setSelectedUserData(user));
+                dispatch(getMessages(user));
             }
         }
     }, [selectedUser, dispatch]);

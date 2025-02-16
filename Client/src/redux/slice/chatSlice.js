@@ -27,7 +27,8 @@ export const getUsers = createAsyncThunk('message/users', async (_, { rejectWith
 
 export const getMessages = createAsyncThunk('message/messages', async (data, { rejectWithValue }) => {
     try {
-        const res = await axiosInstance.get(`/message/${data.id}`);
+        const res = await axiosInstance.get(`/message/${data._id}`);
+        console.log("res in getMessages: ", res);
         return { messages: res.data };
     } catch (err) {
         console.log("error in getMessages: ", err);

@@ -1,4 +1,4 @@
-import { BellRing, Check, ChevronRight, Search } from "lucide-react";
+import {  ChevronRight, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
