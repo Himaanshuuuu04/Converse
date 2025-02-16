@@ -1,5 +1,6 @@
 import User from '../models/user.models.mjs';
 import Message from '../models/message.models.mjs';
+import cloudinary from '../lib/cloudinary.mjs';
 export const getUsersForSideBar = async (req, res) => {
     try {
         const loggedUserId = req.user._id;
@@ -30,16 +31,22 @@ export const getMessages = async (req, res) => {
 
 export const sendMessage = async (req, res) => {
     try {
-        const { text, image, audio } = req.body;
+        console.log("Request Body:", req.body);
+        console.log("Request File:", req.file);
+        const { text, audio } = req.body;
         const { id: receiverID } = req.params;
         const senderID = req.user._id;
-        let imageUrl;
+        if (!receiverID) {
+            return res.status(400).json({ message: "Receiver ID is required" });
+        }
         let audioUrl;
-        if (image) {
-            const result = await cloudinary.uploader.upload(image, {
-                folder: 'chat-images'
+        let imageUrl;
+        if (req.file) {
+            const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+            const result = await cloudinary.uploader.upload(base64Image, {
+                folder: "profile_pictures",
             });
-            imageUrl = result.url;
+            imageUrl = result.secure_url;
         }
         if (audio) {
             const result = await cloudinary.uploader.upload(audio, {

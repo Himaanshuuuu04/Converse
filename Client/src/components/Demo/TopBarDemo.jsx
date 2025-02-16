@@ -5,7 +5,7 @@ import { Video } from 'lucide-react';
 import { Phone } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { X } from 'lucide-react';
-import { setSelectedUserData, setSelectedUser,getMessages } from "@/redux/slice/chatSlice"
+import { setSelectedUserData, setSelectedUser, getMessages } from "@/redux/slice/chatSlice"
 import {
     Tooltip,
     TooltipContent,
@@ -38,38 +38,38 @@ export default function TopBarDemo() {
                 <h1 className="text-white font-medium text-lg">{selectedUserData?.fullName || "User"}</h1>
             </div>
             <div className="flex items-center space-x-4">
-            <TooltipProvider>          
-                <Tooltip>
-                <TooltipTrigger asChild>
-                <Button variant="outline">
-                <Video className="w-5 h-5  cursor-pointer hover:text-gray-300 transition-colors" />
-                </Button>
-            </TooltipTrigger>
-                <TooltipContent>
-                  <p>Video Call</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-              <TooltipTrigger asChild>
-            <Button variant="outline">
-                <Phone className="w-5 h-5  cursor-pointer hover:text-gray-300 transition-colors" />
-            </Button>
-            </TooltipTrigger>
-                <TooltipContent>
-                  <p>Audio Call</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-              <TooltipTrigger asChild>
-            <Button variant="outline" onClick={() => dispatch(setSelectedUser(null))}>
-            <X className="w-5 h-5  cursor-pointer hover:text-gray-300 transition-colors"  />
-            </Button>
-            </TooltipTrigger>
-                <TooltipContent>
-                  <p>Close</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="outline">
+                                <Video className="w-5 h-5  cursor-pointer hover:text-gray-300 transition-colors" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Video Call</p>
+                        </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="outline">
+                                <Phone className="w-5 h-5  cursor-pointer hover:text-gray-300 transition-colors" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Audio Call</p>
+                        </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="outline" onClick={() => dispatch(setSelectedUser(null))}>
+                                <X className="w-5 h-5  cursor-pointer hover:text-gray-300 transition-colors" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Close</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             </div>
             {isImagePreview && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-md z-50">

@@ -1,6 +1,11 @@
+import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { PlaceholdersAndVanishInput } from "../ui/placeholders-and-vanish-input";
+import { setMessageToSend, sendMessage } from "@/redux/slice/chatSlice";
 
 export function ChatInputDemo() {
+    const dispatch = useDispatch();
+    const { messageToSend } = useSelector((state) => state.chat);
     const placeholders = [
         "Type your message here...",
         "Have a question? Ask away!",
@@ -10,13 +15,15 @@ export function ChatInputDemo() {
     ];
 
     const handleChange = (e) => {
-        console.log(e.target.value);
+        let message = e.target.value;
+        dispatch(setMessageToSend({ text: message }));
     };
     const onSubmit = (e) => {
         e.preventDefault();
-        console.log("submitted");
+        if (messageToSend.text.trim() === "" && !messageToSend.image) return;
+        dispatch(sendMessage(messageToSend));
     };
     return (
-            <PlaceholdersAndVanishInput placeholders={placeholders} onChange={handleChange} onSubmit={onSubmit} className="w-full"/>
+        <PlaceholdersAndVanishInput placeholders={placeholders} onChange={handleChange} onSubmit={onSubmit} className="w-full" />
     )
 }
