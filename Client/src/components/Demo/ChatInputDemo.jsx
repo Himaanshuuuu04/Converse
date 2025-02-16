@@ -22,6 +22,7 @@ export function ChatInputDemo() {
         e.preventDefault();
         if (messageToSend.text.trim() === "" && !messageToSend.image) return;
         dispatch(sendMessage(messageToSend));
+        dispatch(setMessageToSend({ text: "", image: "" }));
     };
     return (
         <PlaceholdersAndVanishInput placeholders={placeholders} onChange={handleChange} onSubmit={onSubmit} className="w-full" />
