@@ -11,7 +11,11 @@ const initialState = {
     isUserLoading: false,
     isMessageLoading: false,
     error: null,
-    selectedUserData: null
+    selectedUserData: null,
+    messageToSend: {
+        text: "",
+        audio: null
+    }
 };
 
 export const getUsers = createAsyncThunk('message/users', async (_, { rejectWithValue }) => {
@@ -36,24 +40,24 @@ export const getMessages = createAsyncThunk('message/messages', async (data, { r
     }
 });
 
-export const sendMessage = createAsyncThunk('message/send-message', async (data, { rejectWithValue }) => {
+export const sendMessage = createAsyncThunk('message/send-message', async (data, { rejectWithValue, getState }) => {
     try {
-        const state = select.getState().chat;
+        const state = getState().chat;
         const { selectedUser, messages } = state;
         if (!selectedUser) {
             throw new Error("No user selected");
         }
-        const res = await axiosInstance.post(`/message/send-message/${selectedUser._id}`, data);
+        const res = await axiosInstance.post(`/message/send-message/${selectedUser}`, data, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
         return { messages: [...messages, res.data] };
     } catch (err) {
         console.log("error in sendMessage: ", err);
         return rejectWithValue(err);
     }
 });
-
-
-
-
 export const chatSlice = createSlice({
     name: 'chat',
     initialState,
@@ -63,6 +67,9 @@ export const chatSlice = createSlice({
         },
         setSelectedUserData: (state, action) => {
             state.selectedUserData = action.payload;
+        },
+        setMessageToSend: (state, action) => {
+            state.messageToSend = { ...state.messageToSend, ...action.payload };
         }
     },
     extraReducers: (builder) => {
@@ -95,5 +102,5 @@ export const chatSlice = createSlice({
     },
 });
 
-export const { setSelectedUser, setSelectedUserData } = chatSlice.actions;
+export const { setSelectedUser, setSelectedUserData, setMessageToSend } = chatSlice.actions;
 export default chatSlice.reducer;
