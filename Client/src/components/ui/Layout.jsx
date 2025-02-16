@@ -8,8 +8,6 @@ from "@tabler/icons-react";
 import defaultImage from "../../assets/defaultUserImage.jpeg";
 import {Link,Outlet } from "react-router-dom";
 import {  useState } from "react";
-import { Toaster } from "@/components/ui/toaster";
-
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/Sidebar";
 import { motion } from "framer-motion";
 import {useSelector} from "react-redux";
@@ -39,51 +37,44 @@ export default function Layout() {
   const [open, setOpen] = useState(false);
   const { authUser } = useSelector((state) => state.auth);
 
-  return (
-    <div className="h-screen w-screen overflow-hidden">
-      <div className="flex flex-1">
+  return (  
+    <div className="h-screen w-screen overflow-auto">
+      <div className="flex flex-1 h-screen">
         {/* Sidebar with Navigation */}
-        <div
-          className="rounded-md flex flex-col md:flex-row dark:bg-transaparent flex-1 h-screen w-screen border"
-        >
-          <Sidebar open={open} setOpen={setOpen} animate={true}>
-            <SidebarBody className="justify-between gap-10">
-              <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-                <Logo />
-                <div className="mt-8 flex flex-col gap-2">
-                  {links.map((link, idx) => (
-                    <SidebarLink key={idx} link={link} />
-                  ))}
-                </div>
+        <Sidebar open={open} setOpen={setOpen} animate={true}>
+          <SidebarBody className="justify-between gap-10">
+            <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+              <Logo />
+              <div className="mt-8 flex flex-col gap-2">
+                {links.map((link, idx) => (
+                  <SidebarLink key={idx} link={link} />
+                ))}
               </div>
-              <div>
-                <SidebarLink
-                  link={{
-                    label: `${authUser.fullName}`,
-                    href: "#",
-                    icon: (
-                      <img
-                        src={authUser.profileImage || defaultImage}
-                        className="h-7 w-7 flex-shrink-0 rounded-full"
-                        alt="Avatar"
-                      />
-                    ),
-                  }}
-                />
-              </div>
-            </SidebarBody>
-          </Sidebar>
-
-          {/* Main Content Area */}
-
-          <main>
-            <Outlet />
-          </main>
-        </div>
+            </div>
+            <div>
+              <SidebarLink
+                link={{
+                  label: `${authUser.fullName}`,
+                  href: "#",
+                  icon: (
+                    <img
+                      src={authUser.profileImage || defaultImage}
+                      className="h-7 w-7 flex-shrink-0 rounded-full"
+                      alt="Avatar"
+                    />
+                  ),
+                }}
+              />
+            </div>
+          </SidebarBody>
+        </Sidebar>
+        <main className="flex-1 overflow-auto">
+          <Outlet />
+        </main>
       </div>
     </div>
-  );
-}
+    );
+  }
 
 
 

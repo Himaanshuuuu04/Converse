@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { ContextMenuDemo } from "./ContextMenuDemo"
 import { Switch } from "@/components/ui/switch"
 import { useDispatch, useSelector } from "react-redux"
 import { getUsers, setSelectedUser } from "@/redux/slice/chatSlice"
@@ -24,7 +25,7 @@ export const CardDemo = ({ className, ...props }) => {
     dispatch(getUsers());
   }, [dispatch]);
   return (
-    <Card className={cn("w-[380px]", className)} {...props}>
+    <Card className={cn("md:w-[380px] w-screen", className)} {...props}>
     <div className="sticky top-0 z-10 bg-black">
       <CardHeader>
         <CardTitle className="text-lg font-semibold">
@@ -46,15 +47,15 @@ export const CardDemo = ({ className, ...props }) => {
       </CardHeader>
     </div>
     
-    <CardContent className="grid gap-0  p-0 overflow-y-auto">
+    <CardContent className="grid gap-0  p-0 overflow-auto">
     {isUserLoading ? (
           <div className="text-center text-zinc-500 py-4">Loading users...</div>
         ) : users.length === 0 ? (
           <div className="text-center text-zinc-500 py-4">No users found</div>
         ) : (
           users.map((user) => (
+            <ContextMenuDemo  key={user._id} >
             <button
-              key={user._id}
               onClick={() => dispatch(setSelectedUser(user._id))}
               className={cn(
                 "flex items-center border bg-base border-collapse space-x-4 py-3 px-4 w-full hover:bg-base-300 transition-colors",
@@ -71,13 +72,13 @@ export const CardDemo = ({ className, ...props }) => {
               </div>
               <div className="flex items-center justify-end"><ChevronRight className="w-4 h-4 text-white/50" /></div>
             </button>
+            </ContextMenuDemo>
 
           ))
         )}
 
       </CardContent>
       <CardFooter>
-
       </CardFooter>
     </Card>
   )
