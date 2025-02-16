@@ -1,14 +1,23 @@
+import { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "../ui/scroll-area";
 import Loader from "../ui/Bear";
+
 export default function ChatAreaDemo() {
     const { messages, selectedUserData } = useSelector((state) => state.chat);
     const { authUser } = useSelector((state) => state.auth);
+    const scrollRef = useRef(null);
+
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+    }, [messages]);
 
     return (
         <div className="flex flex-col w-full h-full z-0 overflow-hidden">
-            <ScrollArea className="h-full w-full">
+            <ScrollArea className="h-full w-full" ref={scrollRef}>
                 {messages?.length === 0 ? (
                     <div className="flex  items-center w-full justify-center h-full">
                         <Loader />
@@ -17,9 +26,9 @@ export default function ChatAreaDemo() {
 
                 {messages.map((message, index) => {
                     return (
-                        <>
+                        <div key={index}>
                             {message.senderID === selectedUserData._id ? (
-                                <div key={index} className="flex flex-col items-start p-4">
+                                <div className="flex flex-col items-start p-4">
                                     <div className="flex space-x-2">
                                         <Avatar>
                                             <AvatarImage
@@ -50,7 +59,7 @@ export default function ChatAreaDemo() {
                                     </div>
                                 </div>
                             ) : (
-                                <div key={index} className="flex flex-col p-4 items-end">
+                                <div className="flex flex-col p-4 items-end">
                                     <div className="flex space-x-2">
                                         <div className="flex flex-col">
                                             <div
@@ -60,7 +69,7 @@ export default function ChatAreaDemo() {
                                                         : "bg-white/10"
                                                 } h-fit-content max-w-80 text-sm`}
                                             >
-                                                {message.text}
+                                                {message.text === "" ? <img src={message.image} className="my-2 rounded-md" alt="message" /> : message.text}
                                             </div>
                                             <span className="text-xs mt-2 text-muted-foreground text-right">
                                                 {new Date(message.createdAt).toLocaleString("en-US", {
@@ -81,7 +90,7 @@ export default function ChatAreaDemo() {
                                     </div>
                                 </div>
                             )}
-                        </>
+                        </div>
                     );
                 })}
             </ScrollArea>
