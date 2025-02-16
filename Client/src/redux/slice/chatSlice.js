@@ -11,7 +11,7 @@ const initialState = {
     isUserLoading: false,
     isMessageLoading: false,
     error: null,
-    selectedUserdata: null
+    selectedUserData: null
 };
 
 export const getUsers = createAsyncThunk('message/users', async (_, { rejectWithValue }) => {
@@ -52,7 +52,7 @@ export const sendMessage = createAsyncThunk('message/send-message', async (data,
 
 
 
-    
+
 export const chatSlice = createSlice({
     name: 'chat',
     initialState,
@@ -60,8 +60,8 @@ export const chatSlice = createSlice({
         setSelectedUser: (state, action) => {
             state.selectedUser = action.payload;
         },
-        setSelectedUserdata: (state, action) => {
-            state.selectedUserdata = action.payload;
+        setSelectedUserData: (state, action) => {
+            state.selectedUserData = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -94,5 +94,5 @@ export const chatSlice = createSlice({
     },
 });
 
-export const { setSelectedUser,setSelectedUserdata } = chatSlice.actions;
+export const { setSelectedUser, setSelectedUserData } = chatSlice.actions;
 export default chatSlice.reducer;
