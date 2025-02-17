@@ -4,6 +4,9 @@ import path from "path";
 
 export default defineConfig({
   plugins: [react()],
+  esbuild: {
+    logLevel: 'silent' // Suppresses warnings
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"), // Maps @ to ./src

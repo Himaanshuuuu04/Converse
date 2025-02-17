@@ -1,4 +1,4 @@
-import { useState } from "react";
+
 import { useSelector, useDispatch } from "react-redux";
 import { PlaceholdersAndVanishInput } from "../ui/placeholders-and-vanish-input";
 import { setMessageToSend, sendMessage } from "@/redux/slice/chatSlice";

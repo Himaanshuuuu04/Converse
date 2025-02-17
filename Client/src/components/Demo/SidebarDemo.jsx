@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "../ui/sidebar";
 import {
   IconLogout2,
@@ -9,7 +9,7 @@ import {
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { AlertDialogDemo } from "./AlertDialogDemo";
+
 export function SidebarDemo() {
   const links = [
     {
