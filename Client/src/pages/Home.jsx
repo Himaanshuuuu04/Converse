@@ -1,7 +1,7 @@
-import { Button } from "../components/ui/button";
+
 import { CardDemo } from "../components/Demo/CardDemo";
 import { useSelector } from "react-redux";
-import NoChatContainer from "@/Components/Demo/NoChatContainer";
+import NoChatContainer from "@/components/Demo/NoChatContainer";
 import ChatSectionDemo from "@/components/Demo/ChatSectionDemo";
 
 export default function Home() {
