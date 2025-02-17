@@ -1,4 +1,3 @@
-import React from 'react';
 import chatIcon from '../../assets/chatIcon.gif';
 
 const NoChatContainer = () => {
