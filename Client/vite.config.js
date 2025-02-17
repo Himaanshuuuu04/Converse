@@ -11,7 +11,7 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"), // Maps @ to ./src
     },
-  },
+  },  
   optimizeDeps: {
     include: ["@shadcn/ui"], // Optimizes ShadCN components
   },
