@@ -72,8 +72,8 @@ export const Logo = () => {
   return (
     <Link to="/" className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
       <div className="h-5 w-5  flex-shrink-0" >
-      <img src="/Icon.svg" alt="Logo" className="w-5 h-5 " />
-        </div>
+        <img src="/Icon.svg" alt="Logo" className="w-5 h-5 " />
+      </div>
       <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-medium text-black dark:text-white whitespace-pre">
         Converse
       </motion.span>
@@ -91,19 +91,19 @@ export const LogoIcon = () => {
 
 const Dashboard = () => {
   return (
-      <div className="flex flex-1">
-        <div className="p-2 md:p-10 rounded-tl-2xl  dark:bg-transparent flex flex-col gap-2 flex-1 w-full h-full">
-          <div className="flex gap-2">
-            {[...new Array(4)].map((_, i) => (
-              <div key={i} className="h-20 w-full rounded-lg  dark:bg-transparent animate-pulse"></div>
-            ))}
-          </div>
-          <div className="flex gap-2 flex-1">
-            {[...new Array(2)].map((_, i) => (
-              <div key={i} className="h-full w-full rounded-lg dark:bg-transparent animate-pulse"></div>
-            ))}
-          </div>
+    <div className="flex flex-1">
+      <div className="p-2 md:p-10 rounded-tl-2xl  dark:bg-transparent flex flex-col gap-2 flex-1 w-full h-full">
+        <div className="flex gap-2">
+          {[...new Array(4)].map((_, i) => (
+            <div key={i} className="h-20 w-full rounded-lg  dark:bg-transparent animate-pulse"></div>
+          ))}
+        </div>
+        <div className="flex gap-2 flex-1">
+          {[...new Array(2)].map((_, i) => (
+            <div key={i} className="h-full w-full rounded-lg dark:bg-transparent animate-pulse"></div>
+          ))}
         </div>
       </div>
+    </div>
   );
 };
