@@ -1,7 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { axiosInstance } from '../../lib/axios'
+import { axiosInstance } from '../../lib/axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { io } from 'socket.io-client';
+
 const initialState = {
     authUser: null,
     isSigningUp: false,
@@ -12,92 +13,97 @@ const initialState = {
     socket: null,
 };
 
-
-export const checkAuth = createAsyncThunk('auth/checkAuth', async (_, { rejectWithValue }) => {
+export const checkAuth = createAsyncThunk('auth/checkAuth', async (_, { rejectWithValue ,dispatch}) => {
     try {
         const res = await axiosInstance.get('/auth/check');
+        dispatch(connectSocket());
         return { authUser: res.data };
     } catch (err) {
-        console.log("error in checkAuth: ", err);
+        console.error("Error in checkAuth:", err);
         return rejectWithValue(err);
     }
 });
-export const updateProfile = createAsyncThunk(
-    "auth/updateProfile",
-    async (data, { rejectWithValue }) => {
-        try {
-            const res = await axiosInstance.put("/auth/update-profile", data, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-                withCredentials: true,
-            });
-            return { authUser: res.data };
-        } catch (err) {
-            console.error("Error in updateProfile:", err);
-            return rejectWithValue(err.response?.data || { message: "An error occurred" });
-        }
+
+export const updateProfile = createAsyncThunk('auth/updateProfile', async (data, { rejectWithValue }) => {
+    try {
+        const res = await axiosInstance.put('/auth/update-profile', data, {
+            headers: { "Content-Type": "multipart/form-data" },
+            withCredentials: true,
+        });
+        return { authUser: res.data };
+    } catch (err) {
+        console.error("Error in updateProfile:", err);
+        return rejectWithValue(err.response?.data || { message: "An error occurred" });
     }
-);
+});
+
 export const signup = createAsyncThunk('auth/signup', async (data, { rejectWithValue }) => {
     try {
         const res = await axiosInstance.post('/auth/signup', data);
         return { authUser: res.data };
     } catch (err) {
-        console.log("error in signup: ", err);
+        console.error("Error in signup:", err);
         return rejectWithValue({
             message: err.message,
             code: err.code,
             response: err.response?.data || null,
         });
     }
-})
-export const login = createAsyncThunk('auth/login', async (data, { rejectWithValue }) => {
+});
+
+export const login = createAsyncThunk('auth/login', async (data, { rejectWithValue, dispatch }) => {
     try {
         const res = await axiosInstance.post('/auth/login', data);
-        console.log(res.data);
-        connectSocket();
+        dispatch(connectSocket());
         return { authUser: res.data };
     } catch (err) {
-        console.log("error in login: ", err);
+        console.error("Error in login:", err);
         return rejectWithValue(err);
     }
-})
-export const logout = createAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {   
+});
+
+export const logout = createAsyncThunk('auth/logout', async (_, { rejectWithValue, dispatch }) => {
     try {
         await axiosInstance.post('/auth/logout');
-        disconnectSocket();
+        dispatch(disconnectSocket());
         return { authUser: null };
     } catch (err) {
-        console.log("error in logout: ", err);
+        console.error("Error in logout:", err);
         return rejectWithValue(err);
     }
-})
+});
+
 export const connectSocket = () => (dispatch, getState) => {
-    try {
-        const { auth } = getState();
-        if(auth.authUser || auth.socket?.connected) return;
+    const { auth } = getState();
+    if (auth.authUser && !auth.socket) {
         const socket = io(import.meta.env.VITE_AXIOS_BASE_URL);
-        return { socket };
+        dispatch(setSocket(socket));
+
+        socket.on('connect', () => {
+            console.log("✅ Socket connected successfully.");
+        });
+
+        socket.on('disconnect', () => {
+            console.log("❌ Socket disconnected.");
+        });
     }
-    catch (err) {
-        console.log("error in connectSocket: ", err);
-    }
-}
+};
+
 export const disconnectSocket = () => (dispatch, getState) => {
-    try {
-        const { auth } = getState();
-        if(auth.socket?.connected) auth.socket.disconnect();
-        return { socket: null };
-    }catch (err) {
-        console.log("error in disconnectSocket: ", err);
+    const { auth } = getState();
+    if (auth.socket?.connected) {
+        auth.socket.disconnect();
+        dispatch(setSocket(null));
     }
-}
+};
+
 export const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-
+        setSocket: (state, action) => {
+            state.socket = action.payload;
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -145,25 +151,12 @@ export const authSlice = createSlice({
                 state.isSigningUp = false;
                 state.error = action.payload;
             })
-            .addCase(logout.fulfilled, (state, action) => {
-                state.authUser = action.payload.authUser;
-            })
-            .addCase(connectSocket.fulfilled, (state, action) => {
-                state.socket = action.payload.socket;
-            })
-            .addCase(connectSocket.rejected, (state, action) => {
-                state.error = action.payload;
-            })
-            .addCase(disconnectSocket.fulfilled, (state, action) => {
-                state.socket = action.payload.socket;
-            })
-            .addCase(disconnectSocket.rejected, (state, action) => {
-                state.error = action.payload;
-            })
-
+            .addCase(logout.fulfilled, (state) => {
+                state.authUser = null;
+                state.socket = null;
+            });
     },
-})
+});
 
-//
-
-export default authSlice.reducer
+export const { setSocket } = authSlice.actions;
+export default authSlice.reducer;
