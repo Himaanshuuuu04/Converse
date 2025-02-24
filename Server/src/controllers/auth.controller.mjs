@@ -2,11 +2,12 @@ import User from '../models/user.models.mjs';
 import bcrypt from 'bcryptjs';
 import { generateToken } from '../lib/utils.mjs';
 import cloudinary from '../lib/cloudinary.mjs';
-
+import { sendOTPEmail } from '../lib/email.mjs';
 const validateEmail = (email) => {
     const re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
     return re.test(String(email).toLowerCase());
 }
+const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 export const signup = async (req, res) => {
     const { email, fullName, password } = req.body;
     console.log(req.body);
@@ -27,11 +28,13 @@ export const signup = async (req, res) => {
         }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-        const newUser = new User({ email, fullName, password: hashedPassword });
+        const otp = generateOTP();
+        const otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes expiry
+        const newUser = new User({ email, fullName, password: hashedPassword,emailOTP: otp, emailOTPExpires: otpExpires });
         if (newUser) {
-            generateToken(newUser._id, res);
             await newUser.save();
-            res.status(201).json(newUser);
+            await sendOTPEmail(email, otp);
+            res.status(201).json({ message: 'Signup successful. OTP sent to your email.' });
         }
         else {
             return res.status(400).json({ message: 'Invalid User Credentials' });
@@ -41,6 +44,37 @@ export const signup = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+
+export const verifyOTP = async (req, res) => {
+    const { email, otp } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json({ message: 'User not found' });
+        }
+
+        if (user.isEmailVerified) {
+            return res.status(400).json({ message: 'Email already verified.' });
+        }
+
+        if (!user.emailOTP || user.emailOTP !== otp || user.emailOTPExpires < Date.now()) {
+            return res.status(400).json({ message: 'Invalid or expired OTP' });
+        }
+
+        user.isEmailVerified = true;
+        user.emailOTP = undefined;
+        user.emailOTPExpires = undefined;
+        await user.save();
+
+        res.status(200).json({ message: 'Email verified successfully.' });
+    } catch (error) {
+        console.error('Error in verifyOTP:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
 
 export const login = async (req, res) => {
     const { email, password } = req.body;
@@ -59,6 +93,10 @@ export const login = async (req, res) => {
         if (!user) {
             return res.status(400).json({ message: 'User not found, Invalid credentials' });
         }
+        if (!user.isEmailVerified) {
+            return res.status(400).json({ message: 'Email not verified. Please verify using OTP.' });
+        }
+        
         const isPasswordCorrect = await bcrypt.compare(password, user.password);
         if (!isPasswordCorrect) {
             return res.status(400).json({ message: 'Invalid credentials' });
@@ -79,7 +117,6 @@ export const logout = (req, res) => {
         console.log("Error in logout controller: ", error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
-    res.send('logout');
 };
 export const updateProfile = async (req, res) => {
     try {

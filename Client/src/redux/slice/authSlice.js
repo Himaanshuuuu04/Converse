@@ -19,8 +19,8 @@ export const checkAuth = createAsyncThunk('auth/checkAuth', async (_, { rejectWi
         dispatch(connectSocket());
         return { authUser: res.data };
     } catch (err) {
-        console.error("Error in checkAuth:", err);
-        return rejectWithValue(err);
+        console.error("Error in checkAuth:", err?.response?.data || err.message);
+        return rejectWithValue(err?.response?.data || { message: "Unauthorized access" });
     }
 });
 
@@ -40,7 +40,8 @@ export const updateProfile = createAsyncThunk('auth/updateProfile', async (data,
 export const signup = createAsyncThunk('auth/signup', async (data, { rejectWithValue }) => {
     try {
         const res = await axiosInstance.post('/auth/signup', data);
-        return { authUser: res.data };
+        
+        return { message: res.data.message };
     } catch (err) {
         console.error("Error in signup:", err);
         return rejectWithValue({
@@ -51,14 +52,29 @@ export const signup = createAsyncThunk('auth/signup', async (data, { rejectWithV
     }
 });
 
+export const verifyOTP = createAsyncThunk('auth/verifyOTP', async (data, { rejectWithValue }) => {
+    try {
+        const res = await axiosInstance.post('/auth/verify-otp', data);
+        return{message:res.data.message};
+    } catch (err) {
+        console.error("Error in verifyOTP:", err);
+        return rejectWithValue(err?.response?.data || { message: "An error occurred" });
+    }
+});
+
 export const login = createAsyncThunk('auth/login', async (data, { rejectWithValue, dispatch }) => {
     try {
         const res = await axiosInstance.post('/auth/login', data);
+        const authUser = res.data;
+
+        // Dispatch connectSocket after successful login
+        dispatch(setAuthUser(authUser));  // Set the user in state immediately
         dispatch(connectSocket());
-        return { authUser: res.data };
+
+        return { authUser };
     } catch (err) {
         console.error("Error in login:", err);
-        return rejectWithValue(err);
+        return rejectWithValue(err?.response?.data || { message: "Login failed" });
     }
 });
 
@@ -77,7 +93,7 @@ export const connectSocket = () => (dispatch, getState) => {
     const { auth } = getState();
     if (auth.authUser && !auth.socket) {
         const socket = io(import.meta.env.VITE_AXIOS_BASE_URL);
-        dispatch(setSocket(socket));
+        dispatch(setSocket({ socket }));
 
         socket.on('connect', () => {
             console.log("✅ Socket connected successfully.");
@@ -93,7 +109,7 @@ export const disconnectSocket = () => (dispatch, getState) => {
     const { auth } = getState();
     if (auth.socket?.connected) {
         auth.socket.disconnect();
-        dispatch(setSocket(null));
+        dispatch(setSocket({ socket: null }));
     }
 };
 
@@ -102,7 +118,10 @@ export const authSlice = createSlice({
     initialState,
     reducers: {
         setSocket: (state, action) => {
-            state.socket = action.payload;
+            state.socket = action.payload.socket;
+        },
+        setAuthUser: (state, action) => {
+            state.authUser = action.payload;  // Set user immediately after login
         },
     },
     extraReducers: (builder) => {
@@ -131,9 +150,13 @@ export const authSlice = createSlice({
             })
             .addCase(login.pending, (state) => {
                 state.isLoggingIn = true;
+            
             })
             .addCase(login.fulfilled, (state, action) => {
-                state.authUser = action.payload.authUser;
+                // Avoid overwriting user if already set by setAuthUser
+                if (!state.authUser) {
+                    state.authUser = action.payload.authUser;
+                }
                 state.isLoggingIn = false;
             })
             .addCase(login.rejected, (state, action) => {
@@ -144,7 +167,7 @@ export const authSlice = createSlice({
                 state.isSigningUp = true;
             })
             .addCase(signup.fulfilled, (state, action) => {
-                state.authUser = action.payload.authUser;
+                state.message = action.payload.message;
                 state.isSigningUp = false;
             })
             .addCase(signup.rejected, (state, action) => {
@@ -154,9 +177,18 @@ export const authSlice = createSlice({
             .addCase(logout.fulfilled, (state) => {
                 state.authUser = null;
                 state.socket = null;
+            })
+            .addCase(verifyOTP.fulfilled, (state, action) => {
+                state.message = action.payload.message;
+            })
+            .addCase(verifyOTP.rejected, (state, action) => {
+                state.error = action.payload;
+            })
+            .addCase(logout.rejected, (state, action) => {
+                state.error = action.payload;
             });
     },
 });
 
-export const { setSocket } = authSlice.actions;
+export const { setSocket,setAuthUser } = authSlice.actions;
 export default authSlice.reducer;

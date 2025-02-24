@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { checkAuth } from "./redux/slice/authSlice";
@@ -10,19 +10,23 @@ import UpdateProfile from "./pages/UpdateProfile";
 import Layout from "./components/ui/Layout";
 import { SparklesCore } from "@/components/ui/sparkles";
 import { Toaster } from "@/components/ui/toaster";
+import Logout from "./pages/Logout";
+
+
 export default function App() {
   const dispatch = useDispatch();
-
   const { authUser, isCheckingUser } = useSelector((state) => state.auth);
-
 
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
 
-
   if (isCheckingUser) {
-    return <div className="h-screen w-screen flex items-center justify-center"><ProgressDemo /></div>;
+    return (
+      <div className="h-screen w-screen flex items-center justify-center">
+        <ProgressDemo />
+      </div>
+    );
   }
 
   return (
@@ -40,12 +44,34 @@ export default function App() {
       </div>
       <Toaster />
       <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={authUser ? <Home /> : <SignIn />} />
-          <Route path="/update-profile" element={authUser ? <UpdateProfile /> : <Login />} />
+        <Route element={ authUser?<Layout />:<Navigate to="/login" /> }>
+          {/* Protected Routes */}
+          <Route
+            path="/"
+            element={ <Home/>}
+          />
+          <Route
+            path="/update-profile"
+            element={ <UpdateProfile /> }
+          />
+          <Route 
+            path="/settings"
+            element={ <div>Settings</div> }
+          />
+          <Route 
+            path="/logout"
+            element={ <Logout/> }
+          />
         </Route>
-        <Route path="/login" element={<Login />} />
-        <Route path="/signin" element={<SignIn />} />
+        {/* Public Routes */}
+        <Route
+          path="/login"
+          element={authUser ? <Navigate replace to="/" /> : <Login />}
+        />
+        <Route
+          path="/signin"
+          element={authUser ? <Navigate replace to="/" /> : <SignIn />}
+        />
       </Routes>
     </div>
   );

@@ -14,22 +14,22 @@ import {useSelector} from "react-redux";
 const links = [
     {
       label: "Chats",
-      href: "/login",
+      href: "/",
       icon: <IconMessage className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />,
     },
     {
       label: "Profile",
-      href: "/signin",
+      href: "/update-profile",
       icon: <IconUserBolt className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />,
     },
     {
       label: "Settings",
-      href: "/update-profile",
+      href: "/settings",
       icon: <IconSettings className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />,
     },
     {
       label: "Logout",
-      href: "#",
+      href: "/logout",
       icon: <IconLogout2 className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />,
     },
   ];

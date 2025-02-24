@@ -6,4 +6,11 @@ export const store = configureStore({
         auth: authReducer,
         chat: chatReducer
     },
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            serializableCheck: {
+                ignoredPaths: ['auth.socket'],  // Ignore socket path in state
+                ignoredActions: ['auth/setSocket'],  // Ignore setSocket action
+            },
+        }),
 })  

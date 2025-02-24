@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "../ui/button";
+import { useState } from "react";
 import {
   Form,
   FormControl,
@@ -13,7 +14,14 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { useDispatch } from "react-redux";
-import { signup } from "@/redux/slice/authSlice";
+import { signup, verifyOTP } from "@/redux/slice/authSlice";
+import { useNavigate } from "react-router-dom";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 
 const formSchema = z.object({
   fullName: z.string().min(2, { message: "Enter a valid full name." }),
@@ -24,7 +32,10 @@ const formSchema = z.object({
 export function SignInForm() {
   const { toast } = useToast();
   const dispatch = useDispatch();
-  
+  const navigate = useNavigate();
+  const [showOtp, setShowOtp] = useState(false);
+  const [otp, setOtp] = useState("");
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -34,12 +45,39 @@ export function SignInForm() {
     },
   });
 
-  const handleSubmit = (data) => {
-    dispatch(signup(data));
+  const handleSubmit = async (data) => {
+    try {
+      const response = await dispatch(signup(data)).unwrap();
+      if (response?.message === "OTP sent to email") {
+        toast({ title: "Success", description: "OTP sent to your email.", variant: "success" });
+        setShowOtp(true);
+      } else {
+        toast({ title: "Error", description: response?.message || "Failed to send OTP.", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    try {
+      const email = form.getValues("email");
+      const response = await dispatch(verifyOTP({ email, otp })).unwrap();
+      if (response?.message === "Email verified successfully") {
+        toast({ title: "Success", description: "Email verified successfully!", variant: "success" });
+        navigate("/login"); // Redirect after successful verification
+      } else {
+        toast({ title: "Error", description: response?.message || "Invalid OTP.", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
   };
 
   const handleError = (errors) => {
-    const errorMessages = Object.values(errors).map((err) => err.message).join("\n");
+    const errorMessages = Object.values(errors)
+      .map((err) => err.message)
+      .join("\n");
     toast({
       title: "Validation Error",
       description: errorMessages,
@@ -50,6 +88,7 @@ export function SignInForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit, handleError)} className="space-y-5">
+        {/* Full Name Field */}
         <FormField
           control={form.control}
           name="fullName"
@@ -63,6 +102,8 @@ export function SignInForm() {
             </FormItem>
           )}
         />
+
+        {/* Email Field */}
         <FormField
           control={form.control}
           name="email"
@@ -76,6 +117,8 @@ export function SignInForm() {
             </FormItem>
           )}
         />
+
+        {/* Password Field */}
         <FormField
           control={form.control}
           name="password"
@@ -89,7 +132,39 @@ export function SignInForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full">Submit</Button>
+
+        {/* Submit Button */}
+        {!showOtp && <Button type="submit" className="w-full">Submit</Button>}
+
+        {/* OTP Input Section */}
+        {showOtp && (
+          <div className="space-y-5">
+            <FormItem>
+              <FormLabel>Enter OTP</FormLabel>
+              <FormControl>
+                <InputOTP
+                  maxLength={6}
+                  value={otp}
+                  onChange={setOtp}
+                >
+                  <InputOTPGroup>
+                    {[...Array(3)].map((_, i) => <InputOTPSlot key={i} index={i} />)}
+                  </InputOTPGroup>
+                  <InputOTPSeparator />
+                  <InputOTPGroup>
+                    {[...Array(3)].map((_, i) => <InputOTPSlot key={i + 3} index={i + 3} />)}
+                  </InputOTPGroup>
+                </InputOTP>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+
+            {/* Verify OTP Button */}
+            <Button type="button" className="w-full" onClick={handleVerifyOTP}>
+              Verify OTP
+            </Button>
+          </div>
+        )}
       </form>
     </Form>
   );
