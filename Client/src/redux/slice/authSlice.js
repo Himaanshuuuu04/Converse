@@ -1,14 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { axiosInstance } from '../../lib/axios'
 import { createAsyncThunk } from '@reduxjs/toolkit';
-
+import { io } from 'socket.io-client';
 const initialState = {
     authUser: null,
     isSigningUp: false,
     isLoggingIn: false,
     isUpdatingProfile: false,
     isCheckingUser: true,
-    error: null
+    error: null,
+    socket: null,
 };
 
 
@@ -55,12 +56,43 @@ export const login = createAsyncThunk('auth/login', async (data, { rejectWithVal
     try {
         const res = await axiosInstance.post('/auth/login', data);
         console.log(res.data);
+        connectSocket();
         return { authUser: res.data };
     } catch (err) {
         console.log("error in login: ", err);
         return rejectWithValue(err);
     }
 })
+export const logout = createAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {   
+    try {
+        await axiosInstance.post('/auth/logout');
+        disconnectSocket();
+        return { authUser: null };
+    } catch (err) {
+        console.log("error in logout: ", err);
+        return rejectWithValue(err);
+    }
+})
+export const connectSocket = () => (dispatch, getState) => {
+    try {
+        const { auth } = getState();
+        if(auth.authUser || auth.socket?.connected) return;
+        const socket = io(import.meta.env.VITE_AXIOS_BASE_URL);
+        return { socket };
+    }
+    catch (err) {
+        console.log("error in connectSocket: ", err);
+    }
+}
+export const disconnectSocket = () => (dispatch, getState) => {
+    try {
+        const { auth } = getState();
+        if(auth.socket?.connected) auth.socket.disconnect();
+        return { socket: null };
+    }catch (err) {
+        console.log("error in disconnectSocket: ", err);
+    }
+}
 export const authSlice = createSlice({
     name: 'auth',
     initialState,
@@ -102,6 +134,33 @@ export const authSlice = createSlice({
                 state.isLoggingIn = false;
                 state.error = action.payload;
             })
+            .addCase(signup.pending, (state) => {
+                state.isSigningUp = true;
+            })
+            .addCase(signup.fulfilled, (state, action) => {
+                state.authUser = action.payload.authUser;
+                state.isSigningUp = false;
+            })
+            .addCase(signup.rejected, (state, action) => {
+                state.isSigningUp = false;
+                state.error = action.payload;
+            })
+            .addCase(logout.fulfilled, (state, action) => {
+                state.authUser = action.payload.authUser;
+            })
+            .addCase(connectSocket.fulfilled, (state, action) => {
+                state.socket = action.payload.socket;
+            })
+            .addCase(connectSocket.rejected, (state, action) => {
+                state.error = action.payload;
+            })
+            .addCase(disconnectSocket.fulfilled, (state, action) => {
+                state.socket = action.payload.socket;
+            })
+            .addCase(disconnectSocket.rejected, (state, action) => {
+                state.error = action.payload;
+            })
+
     },
 })
 

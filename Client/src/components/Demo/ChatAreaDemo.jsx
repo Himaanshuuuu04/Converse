@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "../ui/scroll-area";
 import Loader from "../ui/Bear";
+import defaultUserImage from "../../assets/defaultUserImage.jpeg";
 
 export default function ChatAreaDemo() {
     const { messages, selectedUserData } = useSelector((state) => state.chat);
