@@ -52,10 +52,16 @@ export const signup = createAsyncThunk('auth/signup', async (data, { rejectWithV
     }
 });
 
-export const verifyOTP = createAsyncThunk('auth/verifyOTP', async (data, { rejectWithValue }) => {
+export const verifyOTP = createAsyncThunk('auth/verifyOTP', async (data, { rejectWithValue ,dispatch}) => {
     try {
         const res = await axiosInstance.post('/auth/verify-otp', data);
-        return{message:res.data.message};
+        const authUser = res.data;
+
+        // Dispatch connectSocket after successful login
+        dispatch(setAuthUser(authUser));  // Set the user in state immediately
+        dispatch(connectSocket());
+
+        return { authUser };
     } catch (err) {
         console.error("Error in verifyOTP:", err);
         return rejectWithValue(err?.response?.data || { message: "An error occurred" });
@@ -179,7 +185,10 @@ export const authSlice = createSlice({
                 state.socket = null;
             })
             .addCase(verifyOTP.fulfilled, (state, action) => {
-                state.message = action.payload.message;
+                if (!state.authUser) {
+                    state.authUser = action.payload.authUser;
+                }
+                state.isLoggingIn = false;
             })
             .addCase(verifyOTP.rejected, (state, action) => {
                 state.error = action.payload;

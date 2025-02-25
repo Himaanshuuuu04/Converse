@@ -134,10 +134,10 @@ export function SignInForm() {
         />
 
         {/* Submit Button */}
-        {!showOtp && <Button type="submit" className="w-full">Submit</Button>}
+       <Button type="submit" className="w-full">Submit</Button>
 
         {/* OTP Input Section */}
-        {showOtp && (
+        
           <div className="space-y-5">
             <FormItem>
               <FormLabel>Enter OTP</FormLabel>
@@ -164,7 +164,7 @@ export function SignInForm() {
               Verify OTP
             </Button>
           </div>
-        )}
+      
       </form>
     </Form>
   );

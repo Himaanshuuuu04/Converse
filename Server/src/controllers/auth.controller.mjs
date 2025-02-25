@@ -8,6 +8,8 @@ const validateEmail = (email) => {
     return re.test(String(email).toLowerCase());
 }
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
+
+
 export const signup = async (req, res) => {
     const { email, fullName, password } = req.body;
     console.log(req.body);
@@ -68,7 +70,8 @@ export const verifyOTP = async (req, res) => {
         user.emailOTPExpires = undefined;
         await user.save();
 
-        res.status(200).json({ message: 'Email verified successfully.' });
+        generateToken(user._id, res);
+        res.status(200).json(user);
     } catch (error) {
         console.error('Error in verifyOTP:', error);
         res.status(500).json({ message: 'Internal Server Error' });
