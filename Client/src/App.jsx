@@ -15,11 +15,13 @@ import Logout from "./pages/Logout";
 
 export default function App() {
   const dispatch = useDispatch();
-  const { authUser, isCheckingUser } = useSelector((state) => state.auth);
+  const { authUser, isCheckingUser,onlineUsers } = useSelector((state) => state.auth);
 
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
+
+  console.log(onlineUsers);
 
   if (isCheckingUser) {
     return (

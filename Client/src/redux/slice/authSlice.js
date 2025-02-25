@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { axiosInstance } from '../../lib/axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { io } from 'socket.io-client';
+import { on } from 'events';
 
 const initialState = {
     authUser: null,
@@ -11,6 +12,8 @@ const initialState = {
     isCheckingUser: true,
     error: null,
     socket: null,
+    onlineUsers:[],
+    message: null,
 };
 
 export const checkAuth = createAsyncThunk('auth/checkAuth', async (_, { rejectWithValue ,dispatch}) => {
@@ -98,13 +101,18 @@ export const logout = createAsyncThunk('auth/logout', async (_, { rejectWithValu
 export const connectSocket = () => (dispatch, getState) => {
     const { auth } = getState();
     if (auth.authUser && !auth.socket) {
-        const socket = io(import.meta.env.VITE_AXIOS_BASE_URL);
-        dispatch(setSocket({ socket }));
-
+        const socket = io(import.meta.env.VITE_AXIOS_BASE_URL,{
+            query:{
+                userId:auth.authUser._id
+            },
+        });
         socket.on('connect', () => {
             console.log("✅ Socket connected successfully.");
         });
-
+        socket.on('getOnlineUsers',(userIds)=>{
+            dispatch(setOnlineUsers({onlineUsers:userIds}));
+        });
+        dispatch(setSocket({ socket }));
         socket.on('disconnect', () => {
             console.log("❌ Socket disconnected.");
         });
@@ -129,6 +137,9 @@ export const authSlice = createSlice({
         setAuthUser: (state, action) => {
             state.authUser = action.payload;  // Set user immediately after login
         },
+        setOnlineUsers:(state,action)=>{
+            state.onlineUsers = action.payload;
+        }
     },
     extraReducers: (builder) => {
         builder
