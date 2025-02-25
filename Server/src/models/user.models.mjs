@@ -28,11 +28,11 @@ const userSchema = new mongoose.Schema(
             type: Boolean,
             default: false
         },
-        emailOTP: { 
-            type: String 
+        emailOTP: {
+            type: String
         },
-        emailOTPExpires: { 
-            type: Date 
+        emailOTPExpires: {
+            type: Date
         }
     },
     {
