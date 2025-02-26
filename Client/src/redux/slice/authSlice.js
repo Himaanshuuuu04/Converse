@@ -100,15 +100,9 @@ export const logout = createAsyncThunk('auth/logout', async (_, { rejectWithValu
 export const connectSocket = () => (dispatch, getState) => {
     const { auth } = getState();
     if (auth.authUser && !auth.socket) {
-<<<<<<< HEAD
         const socket = io(import.meta.env.VITE_AXIOS_BASE_URL,{
             query:{
                 userID:auth.authUser._id
-=======
-        const socket = io(import.meta.env.VITE_AXIOS_BASE_URL, {
-            query: {
-                userID: auth.authUser._id
->>>>>>> 3370daa9e8bcf758acf14500da24ab049de4b36f
             },
         });
         socket.on('connect', () => {
@@ -215,9 +209,5 @@ export const authSlice = createSlice({
     },
 });
 
-<<<<<<< HEAD
 export const { setSocket,setAuthUser,setOnlineUsers } = authSlice.actions;
-=======
-export const { setSocket, setAuthUser, setOnlineUsers } = authSlice.actions;
->>>>>>> 3370daa9e8bcf758acf14500da24ab049de4b36f
 export default authSlice.reducer;
