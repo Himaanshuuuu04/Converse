@@ -4,21 +4,27 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "../ui/scroll-area";
 import Loader from "../ui/Bear";
 import defaultUserImage from "../../assets/defaultUserImage.jpeg";
-
+import { useDispatch } from "react-redux";
+import { getMessages,subscribeToMessages,unsubscribeToMessages } from "@/redux/slice/chatSlice";
 export default function ChatAreaDemo() {
+    const dispatch = useDispatch();
     const { messages, selectedUserData } = useSelector((state) => state.chat);
     const { authUser } = useSelector((state) => state.auth);
-    const scrollRef = useRef(null);
+    
 
     useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        if(!selectedUserData) return;
+        dispatch(getMessages(selectedUserData));
+        dispatch(subscribeToMessages());
+        return () => {
+            dispatch(unsubscribeToMessages());
         }
-    }, [messages]);
+    }, [dispatch, selectedUserData]);
+
 
     return (
         <div className="flex flex-col w-full h-full z-0 overflow-hidden">
-            <ScrollArea className="h-full w-full" ref={scrollRef}>
+            <ScrollArea className="h-full w-full" >
                 {messages?.length === 0 ? (
                     <div className="flex  items-center w-full justify-center h-full">
                         <Loader />

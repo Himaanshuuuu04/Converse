@@ -22,13 +22,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const CardDemo = ({ className, ...props }) => {
   const dispatch = useDispatch();
-  const { users, selectedUser } = useSelector((state) => state.chat);
+  const { users, selectedUser,isUserLoading } = useSelector((state) => state.chat);
   const { onlineUsers } = useSelector((state) => state.auth);
   const [viewOnlineUsers, setViewOnlineUsers] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    dispatch(getUsers());
+    if(!isUserLoading)dispatch(getUsers());
   }, [dispatch]);
 
   // Filter users based on search term and online status

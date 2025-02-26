@@ -18,6 +18,7 @@ export default function App() {
   const { authUser, isCheckingUser,onlineUsers } = useSelector((state) => state.auth);
 
   useEffect(() => {
+    if(!isCheckingUser)
     dispatch(checkAuth());
   }, [dispatch]);
 

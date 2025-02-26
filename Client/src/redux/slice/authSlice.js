@@ -8,7 +8,7 @@ const initialState = {
     isSigningUp: false,
     isLoggingIn: false,
     isUpdatingProfile: false,
-    isCheckingUser: true,
+    isCheckingUser: false,
     error: null,
     socket: null,
     onlineUsers: [],

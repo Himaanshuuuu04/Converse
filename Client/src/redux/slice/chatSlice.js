@@ -3,6 +3,7 @@ import { axiosInstance } from "../../lib/axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 
+
 const initialState = {
     messages: [],
     users: [],
@@ -31,7 +32,7 @@ export const getUsers = createAsyncThunk('message/users', async (_, { rejectWith
 export const getMessages = createAsyncThunk('message/messages', async (data, { rejectWithValue }) => {
     try {
         const res = await axiosInstance.get(`/message/${data._id}`);
-        console.log("res in getMessages: ", res);
+        console.log("getMessages: runned for ", data._id);
         return { messages: res.data };
     } catch (err) {
         console.log("error in getMessages: ", err);
@@ -57,6 +58,30 @@ export const sendMessage = createAsyncThunk('message/send-message', async (data,
         return rejectWithValue(err);
     }
 });
+
+export const subscribeToMessages = () => (dispatch, getState) => {
+    const { chat, auth } = getState();
+    if (!chat.selectedUser) {
+        return;
+    }
+    if (!auth.socket) {
+        console.error("Socket not available");
+        return;
+    }
+    auth.socket.on('message', (data) => {
+        const currentMessages = getState().chat.messages;
+        dispatch(setMessages([...currentMessages, data]));
+    });
+    console.log("Subscribed to messages", chat.selectedUser);
+};
+export const unsubscribeToMessages = () => (dispatch, getState) => {
+    const { auth } = getState();
+    if (auth.socket) {
+        auth.socket.off('message');
+    }
+    console.log("Unsubscribed to messages", getState().chat.selectedUser);
+};
+
 export const chatSlice = createSlice({
     name: 'chat',
     initialState,
@@ -69,6 +94,9 @@ export const chatSlice = createSlice({
         },
         setMessageToSend: (state, action) => {
             state.messageToSend = { ...state.messageToSend, ...action.payload };
+        },
+        setMessages: (state, action) => {
+            state.messages = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -101,5 +129,5 @@ export const chatSlice = createSlice({
     },
 });
 
-export const { setSelectedUser, setSelectedUserData, setMessageToSend } = chatSlice.actions;
+export const { setSelectedUser, setSelectedUserData, setMessageToSend,setMessages } = chatSlice.actions;
 export default chatSlice.reducer;
