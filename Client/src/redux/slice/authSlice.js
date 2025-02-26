@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { axiosInstance } from '../../lib/axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { io } from 'socket.io-client';
-import { on } from 'events';
+
 
 const initialState = {
     authUser: null,
@@ -103,7 +103,7 @@ export const connectSocket = () => (dispatch, getState) => {
     if (auth.authUser && !auth.socket) {
         const socket = io(import.meta.env.VITE_AXIOS_BASE_URL,{
             query:{
-                userId:auth.authUser._id
+                userID:auth.authUser._id
             },
         });
         socket.on('connect', () => {
@@ -210,5 +210,5 @@ export const authSlice = createSlice({
     },
 });
 
-export const { setSocket,setAuthUser } = authSlice.actions;
+export const { setSocket,setAuthUser,setOnlineUsers } = authSlice.actions;
 export default authSlice.reducer;
