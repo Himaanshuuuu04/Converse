@@ -3,7 +3,6 @@ import { axiosInstance } from '../../lib/axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { io } from 'socket.io-client';
 
-
 const initialState = {
     authUser: null,
     isSigningUp: false,
@@ -12,11 +11,11 @@ const initialState = {
     isCheckingUser: true,
     error: null,
     socket: null,
-    onlineUsers:[],
+    onlineUsers: [],
     message: null,
 };
 
-export const checkAuth = createAsyncThunk('auth/checkAuth', async (_, { rejectWithValue ,dispatch}) => {
+export const checkAuth = createAsyncThunk('auth/checkAuth', async (_, { rejectWithValue, dispatch }) => {
     try {
         const res = await axiosInstance.get('/auth/check');
         dispatch(connectSocket());
@@ -43,7 +42,7 @@ export const updateProfile = createAsyncThunk('auth/updateProfile', async (data,
 export const signup = createAsyncThunk('auth/signup', async (data, { rejectWithValue }) => {
     try {
         const res = await axiosInstance.post('/auth/signup', data);
-        
+
         return { message: res.data.message };
     } catch (err) {
         console.error("Error in signup:", err);
@@ -55,7 +54,7 @@ export const signup = createAsyncThunk('auth/signup', async (data, { rejectWithV
     }
 });
 
-export const verifyOTP = createAsyncThunk('auth/verifyOTP', async (data, { rejectWithValue ,dispatch}) => {
+export const verifyOTP = createAsyncThunk('auth/verifyOTP', async (data, { rejectWithValue, dispatch }) => {
     try {
         const res = await axiosInstance.post('/auth/verify-otp', data);
         const authUser = res.data;
@@ -101,16 +100,22 @@ export const logout = createAsyncThunk('auth/logout', async (_, { rejectWithValu
 export const connectSocket = () => (dispatch, getState) => {
     const { auth } = getState();
     if (auth.authUser && !auth.socket) {
+<<<<<<< HEAD
         const socket = io(import.meta.env.VITE_AXIOS_BASE_URL,{
             query:{
                 userID:auth.authUser._id
+=======
+        const socket = io(import.meta.env.VITE_AXIOS_BASE_URL, {
+            query: {
+                userID: auth.authUser._id
+>>>>>>> 3370daa9e8bcf758acf14500da24ab049de4b36f
             },
         });
         socket.on('connect', () => {
             console.log("✅ Socket connected successfully.");
         });
-        socket.on('getOnlineUsers',(userIds)=>{
-            dispatch(setOnlineUsers({onlineUsers:userIds}));
+        socket.on('getOnlineUsers', (userIds) => {
+            dispatch(setOnlineUsers({ onlineUsers: userIds }));
         });
         dispatch(setSocket({ socket }));
         socket.on('disconnect', () => {
@@ -137,7 +142,7 @@ export const authSlice = createSlice({
         setAuthUser: (state, action) => {
             state.authUser = action.payload;  // Set user immediately after login
         },
-        setOnlineUsers:(state,action)=>{
+        setOnlineUsers: (state, action) => {
             state.onlineUsers = action.payload;
         }
     },
@@ -167,7 +172,7 @@ export const authSlice = createSlice({
             })
             .addCase(login.pending, (state) => {
                 state.isLoggingIn = true;
-            
+
             })
             .addCase(login.fulfilled, (state, action) => {
                 // Avoid overwriting user if already set by setAuthUser
@@ -210,5 +215,9 @@ export const authSlice = createSlice({
     },
 });
 
+<<<<<<< HEAD
 export const { setSocket,setAuthUser,setOnlineUsers } = authSlice.actions;
+=======
+export const { setSocket, setAuthUser, setOnlineUsers } = authSlice.actions;
+>>>>>>> 3370daa9e8bcf758acf14500da24ab049de4b36f
 export default authSlice.reducer;
