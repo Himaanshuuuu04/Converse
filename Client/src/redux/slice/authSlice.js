@@ -137,7 +137,7 @@ export const authSlice = createSlice({
             state.authUser = action.payload;  // Set user immediately after login
         },
         setOnlineUsers: (state, action) => {
-            state.onlineUsers = action.payload;
+            state.onlineUsers = action.payload.onlineUsers;
         }
     },
     extraReducers: (builder) => {

@@ -33,7 +33,11 @@ export default function Logout() {
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel onClick={
+                        () => {
+                            navigate('/');
+                        }
+                    }>Cancel</AlertDialogCancel>
                     <AlertDialogAction onClick={() => {
                         dispatch(logout());
                         navigate('/login');

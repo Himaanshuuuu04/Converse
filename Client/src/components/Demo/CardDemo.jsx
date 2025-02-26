@@ -1,25 +1,21 @@
-import {  ChevronRight, Search } from "lucide-react";
+import { ChevronRight, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Toggle } from "@/components/ui/toggle";
+import { Radio } from "lucide-react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ContextMenuDemo } from "./ContextMenuDemo";
 import { useDispatch, useSelector } from "react-redux";
 import { getUsers, setSelectedUser } from "@/redux/slice/chatSlice";
-import { useEffect } from "react";
 import defaultUserImage from "../../assets/defaultUserImage.jpeg";
 import { Input } from "../ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -27,10 +23,19 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 export const CardDemo = ({ className, ...props }) => {
   const dispatch = useDispatch();
   const { users, selectedUser } = useSelector((state) => state.chat);
+  const { onlineUsers } = useSelector((state) => state.auth);
+  const [viewOnlineUsers, setViewOnlineUsers] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     dispatch(getUsers());
   }, [dispatch]);
+
+  // Filter users based on search term and online status
+  const filteredUsers = users.filter(user => 
+    (!viewOnlineUsers || onlineUsers.includes(user._id)) &&
+    user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <Card className={cn("md:w-[380px] w-screen", className)} {...props}>
@@ -41,20 +46,19 @@ export const CardDemo = ({ className, ...props }) => {
             You can only search people you follow
           </CardDescription>
           <div className="flex items-center space-x-2">
-          <Input
-            placeholder="Aunt May..."
-            className="w-full"
-            aria-label="Search users"
-          />
+            <Input
+              placeholder="Aunt May..."
+              className="w-full"
+              aria-label="Search users"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-
-                    
-                    <Button variant="outline">
-                      <Search />
-                    </Button>
-              
+                  <Button variant="outline">
+                    <Search />
+                  </Button>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Search users</p>
@@ -62,14 +66,21 @@ export const CardDemo = ({ className, ...props }) => {
               </Tooltip>
             </TooltipProvider>
           </div>
+          <Toggle
+            aria-label="Toggle online users"
+            variant="outline"
+            onClick={() => setViewOnlineUsers(!viewOnlineUsers)}
+          >
+            <Radio /> Online Users
+          </Toggle>
         </CardHeader>
       </div>
       <CardContent className="grid gap-0 p-0 overflow-hidden">
         <ScrollArea className="h-full w-full">
-          {users.length === 0 ? (
+          {filteredUsers.length === 0 ? (
             <div className="text-center text-zinc-500 py-4">No users found</div>
           ) : (
-            users.map((user) => (
+            filteredUsers.map((user) => (
               <ContextMenuDemo key={user._id}>
                 <button
                   onClick={() => dispatch(setSelectedUser(user._id))}
@@ -79,17 +90,17 @@ export const CardDemo = ({ className, ...props }) => {
                   )}
                 >
                   <Avatar>
-                    <AvatarImage
-                      src={user.profileImage || defaultUserImage}
-                      className="object-cover"
-                    />
+                    <AvatarImage src={user.profileImage || defaultUserImage} className="object-cover" />
                     <AvatarFallback>{user.name}</AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-start flex-1">
                     <span>{user.fullName}</span>
-                    <span className="text-xs text-lime-400 text-muted-foreground">
-                      Online
-                    </span>
+                    {onlineUsers.includes(user._id) && (
+                      <span className="text-xs text-green-400">Online</span>
+                    )}
+                    {!onlineUsers.includes(user._id) && (
+                      <span className="text-xs text-muted-foreground">Offline</span>
+                    )}
                   </div>
                   <div className="flex items-center justify-end">
                     <ChevronRight className="w-4 h-4 text-white/50" />
@@ -100,8 +111,6 @@ export const CardDemo = ({ className, ...props }) => {
           )}
         </ScrollArea>
       </CardContent>
-      <CardFooter>
-      </CardFooter>
     </Card>
   );
 };
