@@ -97,11 +97,11 @@ export default function LowerBarDemo() {
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent align="end" sideOffset={20} className="w-96 p-4 shadow-md">
-                            <h1 className="font-semibold text-xl">AI Generated</h1>
-                            <ScrollArea className="max-h-80">
-                                <div className="font-extralight">
+                            <h1 className="font-semibold text-xl text-cyan-400">AI Generated</h1>
+                            <ScrollArea className="max-h-80 h-fit overflow-auto font-extralight">
+                                
                                     {aiLoading ? "Loading" : <ReactMarkdown>{aiResponse}</ReactMarkdown>}
-                                </div>
+                                
                             </ScrollArea>
                         </PopoverContent>
                     </Popover>
