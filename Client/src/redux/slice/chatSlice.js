@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { axiosInstance } from "../../lib/axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-
+import { useToast } from "@/hooks/use-toast"
 
 
 const initialState = {
@@ -21,10 +21,13 @@ const initialState = {
 };
 
 export const getUsers = createAsyncThunk('message/users', async (_, { rejectWithValue }) => {
+
     try {
         const res = await axiosInstance.get('/message/users');
+        
         return { users: res.data };
     } catch (err) {
+        
         console.log("error in getUsers: ", err);
         return rejectWithValue(err);
     }
@@ -70,6 +73,7 @@ export const getAiResponse = createAsyncThunk('message/getAiResponse', async (da
         return { aiResponse: res.data };
     } catch (err) {
         console.log("error in getAiResponse: ", err);
+        Toast.Error("Error in AI response");
         return rejectWithValue(err);
     }
 }); 

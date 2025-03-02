@@ -11,7 +11,7 @@ import Layout from "./components/ui/Layout";
 import { SparklesCore } from "@/components/ui/sparkles";
 import { Toaster } from "@/components/ui/toaster";
 import Logout from "./pages/Logout";
-
+import Aurora from "@/components/ui/Backgrounds/Aurora/Aurora";
 
 export default function App() {
   const dispatch = useDispatch();
@@ -35,7 +35,7 @@ export default function App() {
   return (
     <div>
       <div className="w-screen absolute inset-0 h-screen -z-50">
-        <SparklesCore
+      <SparklesCore
           id="tsparticlesfullpage"
           background="#000000"
           minSize={0.1}
@@ -44,7 +44,18 @@ export default function App() {
           className="w-full h-full"
           particleColor="#FFFFFF"
         />
+                
       </div>
+      <div className="w-screen absolute inset-0 h-1/2 -z-50">
+      <Aurora
+        colorStops={["#00d8ff", "#7cff67", "#00d8ff"]}
+        blend={1}
+        amplitude={2}
+        speed={0.3}
+      />
+                
+      </div>
+      
       <Toaster />
       <Routes>
         <Route element={ authUser?<Layout />:<Navigate to="/login" /> }>

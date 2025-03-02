@@ -1,13 +1,17 @@
 import { SignInForm } from "../components/Demo/SignInForm";
 import { NavLink} from "react-router-dom";
-import Spline from '@splinetool/react-spline';
+import LoginScreen from "@/components/Demo/LoginScreen";
+
 
 
 export default function SignIn() {
   
   return (
-    <div className="h-screen w-screen flex items-center justify-center text-white">
+    <div className="h-screen w-screen flex flex-col  md:flex-row items-center justify-center text-white">
 
+          <div className="w-full h-fit sm:w-2/3 sm:h-full z-50  sm:mt-0 sm:hidden block mb-20">
+          <LoginScreen />
+          </div>
       {/* Container for both sides of the screen */}
       <div className="w-full sm:w-1/2 flex flex-col items-center justify-center px-4 sm:px-0">
         {/* Title Section */}
@@ -32,8 +36,8 @@ export default function SignIn() {
       </div>
 
       {/* 3D Animation or Image Section */}
-      <div className="w-full sm:w-2/3 h-full z-50  sm:mt-0 sm:block ">
-        <Spline scene="https://prod.spline.design/JOkpUHCnGytcdudt/scene.splinecode" />
+     <div className="w-full h-1/3 sm:w-2/3 sm:h-full z-50  sm:mt-0 sm:block  hidden">
+        <LoginScreen />
       </div>
     </div>
   );

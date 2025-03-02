@@ -13,6 +13,19 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+
+
 export default function TopBarDemo() {
     const dispatch = useDispatch();
     const { users, selectedUser, selectedUserData } = useSelector(state => state.chat);
@@ -35,7 +48,31 @@ export default function TopBarDemo() {
                         className="object-cover" />
                     <AvatarFallback>{selectedUserData?.fullName || "?"}</AvatarFallback>
                 </Avatar>
-                <h1 className="text-white font-medium text-lg">{selectedUserData?.fullName || "User"}</h1>
+                <Sheet>
+                    <SheetTrigger asChild>             
+                        <div className="cursor-pointer">
+                            <h1 className="text-white font-medium text-lg">{selectedUserData?.fullName || "User"}</h1>
+                        </div> 
+                    </SheetTrigger>
+                    <SheetContent className=" items-center">
+                        <SheetHeader className="flex flex-col items-center">
+                            <Avatar className="cursor-pointer h-40 w-40 mt-10 ">
+                                <AvatarImage src={selectedUserData?.profileImage || defaultUserImage}
+                                    className="object-cover  " />
+                                <AvatarFallback>{selectedUserData?.fullName || "?"}</AvatarFallback>
+                                
+                            </Avatar>
+                            
+                            
+                        <SheetTitle className="text-3xl">{selectedUserData?.fullName || "User"}</SheetTitle>
+                        <SheetDescription>
+                           {selectedUserData?.about || "User Bio"}
+                        </SheetDescription>
+                        </SheetHeader>
+                        <Separator className="my-2" />
+                        
+                    </SheetContent>
+                </Sheet>
             </div>
             <div className="flex items-center space-x-4">
                 <TooltipProvider>
