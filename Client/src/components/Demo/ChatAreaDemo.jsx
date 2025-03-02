@@ -6,11 +6,22 @@ import Loader from "../ui/Bear";
 import defaultUserImage from "../../assets/defaultUserImage.jpeg";
 import { useDispatch } from "react-redux";
 import { getMessages,subscribeToMessages,unsubscribeToMessages } from "@/redux/slice/chatSlice";
+import BlurText from "../ui/TextAnimations/BlurText/BlurText";
+
+
+
+
 export default function ChatAreaDemo() {
     const dispatch = useDispatch();
     const { messages, selectedUserData } = useSelector((state) => state.chat);
     const { authUser } = useSelector((state) => state.auth);
-    
+    const messagesEndRef = useRef(null);
+
+    useEffect(() => {
+        if (messagesEndRef.current && messages.length > 0) {
+            messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    },[messages]);
 
     useEffect(() => {
         if(!selectedUserData) return;
@@ -27,13 +38,21 @@ export default function ChatAreaDemo() {
             <ScrollArea className="h-full w-full" >
                 {messages?.length === 0 ? (
                     <div className="flex  items-center w-full justify-center h-full">
-                        <Loader />
+                        <BlurText
+                            text="Lol, there is nothing to showup👀"
+                            delay={100}
+                            animateBy="words"
+                            direction="top"
+                           
+                            className="text-2xl m-10 "
+                            
+                            />
                     </div>
                 ) : null}
 
                 {messages.map((message, index) => {
                     return (
-                        <div key={index}>
+                        <div key={index} ref={messagesEndRef}>
                             {message.senderID === selectedUserData._id ? (
                                 <div className="flex flex-col items-start p-4">
                                     <div className="flex space-x-2">

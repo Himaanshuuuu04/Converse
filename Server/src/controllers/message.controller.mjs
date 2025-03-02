@@ -3,6 +3,13 @@ import Message from '../models/message.models.mjs';
 import cloudinary from '../lib/cloudinary.mjs';
 import { getReceiverSocketID } from '../lib/socket.mjs';
 import { io } from '../lib/socket.mjs';
+import {
+    GoogleGenerativeAI,
+    HarmCategory,
+    HarmBlockThreshold,
+  } from "@google/generative-ai";
+
+
 export const getUsersForSideBar = async (req, res) => {
     try {
         const loggedUserId = req.user._id;
@@ -33,8 +40,8 @@ export const getMessages = async (req, res) => {
 
 export const sendMessage = async (req, res) => {
     try {
-        console.log("Request Body:", req.body);
-        console.log("Request File:", req.file);
+        // console.log("Request Body:", req.body);
+        // console.log("Request File:", req.file);
         const { text, audio } = req.body;
         const { id: receiverID } = req.params;
         const senderID = req.user._id;
@@ -69,6 +76,47 @@ export const sendMessage = async (req, res) => {
         res.status(201).json(message);
     } catch (error) {
         console.log("Error in sendMessage controller: ", error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+export const getAiResponse = async (req, res) => {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+        return res.status(500).json({ message: "GEMINI_API_KEY not found in environment variables" });
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({
+        model: "gemini-2.0-flash-exp", // Use the correct model name here
+    });
+    const generationConfig = {
+        temperature: 0.75,
+        topP: 0.95,
+        topK: 40,
+        maxOutputTokens: 8192,
+        responseMimeType: "text/plain", // Changed to markdown
+    };
+
+    try {
+        const { userInput } = req.body; // Assuming the user's prompt is sent in the request body as 'userInput'
+        if (!userInput) {
+            return res.status(400).json({ message: "Prompt is required in the request body", userInput });
+        }
+
+        // Add a prompt to encourage Markdown output (optional but recommended)
+        const markdownPrompt = `${userInput}\n\n Please format your response using Markdown.`;
+
+        const result = await model.generateContent({
+          contents: [{ role: 'user', parts: [{ text: markdownPrompt }] }], // Send as generateContentRequest
+          generationConfig,
+        });
+        const response = await result.response;
+        const text = response.text();
+        res.status(200).json({ message: text });
+
+    } catch (err) {
+        console.error("Error in getAiResponse controller: ", err);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };

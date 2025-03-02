@@ -15,7 +15,9 @@ const initialState = {
     messageToSend: {
         text: "",
         audio: null
-    }
+    },
+    aiResponse:"",
+    aiLoading:false
 };
 
 export const getUsers = createAsyncThunk('message/users', async (_, { rejectWithValue }) => {
@@ -59,6 +61,19 @@ export const sendMessage = createAsyncThunk('message/send-message', async (data,
     }
 });
 
+export const getAiResponse = createAsyncThunk('message/getAiResponse', async (data, { rejectWithValue}) => {
+    try {
+        if (!data.userInput) {
+            throw new Error("User input is required");
+        }
+        const res = await axiosInstance.post(`/message/getAiResponse`, data);
+        return { aiResponse: res.data };
+    } catch (err) {
+        console.log("error in getAiResponse: ", err);
+        return rejectWithValue(err);
+    }
+}); 
+
 export const subscribeToMessages = () => (dispatch, getState) => {
     const { chat, auth } = getState();
     if (!chat.selectedUser) {
@@ -68,18 +83,23 @@ export const subscribeToMessages = () => (dispatch, getState) => {
         console.error("Socket not available");
         return;
     }
+    
+   
+    
     auth.socket.on('message', (data) => {
+        if(data.senderID !== chat.selectedUser) return;
         const currentMessages = getState().chat.messages;
         dispatch(setMessages([...currentMessages, data]));
+        console.log("Subscribed to messages", chat.selectedUser);
     });
-    console.log("Subscribed to messages", chat.selectedUser);
 };
 export const unsubscribeToMessages = () => (dispatch, getState) => {
     const { auth } = getState();
     if (auth.socket) {
-        auth.socket.off('message');
+        auth.socket.off('message'); 
+        console.log("Unsubscribed to messages", getState().chat.selectedUser);
     }
-    console.log("Unsubscribed to messages", getState().chat.selectedUser);
+   
 };
 
 export const chatSlice = createSlice({
@@ -125,7 +145,22 @@ export const chatSlice = createSlice({
             })
             .addCase(sendMessage.fulfilled, (state, action) => {
                 state.messages = action.payload.messages;
-            });
+            })
+            .addCase(sendMessage.rejected, (state, action) => {
+                state.error = action.payload;
+            }
+            )
+            .addCase(getAiResponse.pending, (state) => {
+                state.aiLoading = true;
+            })
+            .addCase(getAiResponse.fulfilled, (state, action) => {
+                state.aiResponse = action.payload.aiResponse.message;
+                state.aiLoading = false;
+            })
+            .addCase(getAiResponse.rejected, (state, action) => {
+                state.aiLoading = false;
+                state.error = action.payload;
+            })
     },
 });
 

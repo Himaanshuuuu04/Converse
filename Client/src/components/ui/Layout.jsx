@@ -5,12 +5,14 @@ import {
     IconUserBolt,
   } 
 from "@tabler/icons-react";
+
 import defaultImage from "../../assets/defaultUserImage.jpeg";
 import {Link,Outlet } from "react-router-dom";
 import {  useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import { motion } from "framer-motion";
 import {useSelector} from "react-redux";
+
 const links = [
     {
       label: "Chats",
