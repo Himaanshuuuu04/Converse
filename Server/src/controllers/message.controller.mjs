@@ -3,11 +3,7 @@ import Message from '../models/message.models.mjs';
 import cloudinary from '../lib/cloudinary.mjs';
 import { getReceiverSocketID } from '../lib/socket.mjs';
 import { io } from '../lib/socket.mjs';
-import {
-    GoogleGenerativeAI,
-    HarmCategory,
-    HarmBlockThreshold,
-  } from "@google/generative-ai";
+import {GoogleGenerativeAI} from "@google/generative-ai";
 
 
 export const getUsersForSideBar = async (req, res) => {
@@ -120,3 +116,24 @@ export const getAiResponse = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+
+export const deleteMessage = async (req, res) => {
+    try {
+        const { _id } = req.body;
+        const message = await Message.findByIdAndDelete(_id).exec();
+        
+        if (!message) {
+            return res.status(404).json({ message: "Message not found" });
+        }
+
+        const receiverSocketID = getReceiverSocketID(message.receiverID);
+        if (receiverSocketID) {
+            io.to(receiverSocketID).emit('messageDeleted', { _id });
+        }
+
+        res.status(200).json({ message: "Message deleted successfully" });
+    } catch (error) {
+        console.log("Error in deleteMessage controller: ", error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+}

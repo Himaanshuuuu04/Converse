@@ -53,7 +53,7 @@ export default function Layout() {
                 ))}
               </div>
             </div>
-            <div>
+            <div >
               <SidebarLink
                 link={{
                   label: `${authUser.fullName}`,
@@ -61,7 +61,7 @@ export default function Layout() {
                   icon: (
                     <img
                       src={authUser.profileImage || defaultImage}
-                      className="h-7 w-7 flex-shrink-0 rounded-full"
+                      className="h-7 w-7 flex-shrink-0 rounded-full object-cover"
                       alt="Avatar"
                     />
                   ),

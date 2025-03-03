@@ -78,17 +78,58 @@ export const getAiResponse = createAsyncThunk('message/getAiResponse', async (da
     }
 }); 
 
+export const deleteMessage = createAsyncThunk('message/delete-message', async (data, { rejectWithValue, getState }) => {
+    try {
+        const state = getState().chat;
+        const { authUser } = getState().auth;
+        const { selectedUser, messages } = state;
+        if (!selectedUser) {
+            throw new Error("No user selected");
+        }
+        if (data.senderID !== authUser._id) {
+            throw new Error("You are not authorized to delete this message");
+        }
+        await axiosInstance.delete(`/message/delete-message`, {
+            data: { _id: data._id }
+        });
+        return { messages: messages.filter(message => message._id !== data._id) };
+    } catch (err) {
+        console.log("error in deleteMessage: ", err);
+        return rejectWithValue(err);
+    }
+});
+
+
+
+// export const subscribeToMessages = () => (dispatch, getState) => {
+//     const { chat, auth } = getState();
+//     if (!chat.selectedUser) {
+//         return;
+//     }
+//     if (!auth.socket) {
+//         console.error("Socket not available");
+//         return;
+//     }
+    
+//     auth.socket.on('message', (data) => {
+//         if(data.senderID !== chat.selectedUser) return;
+//         const currentMessages = getState().chat.messages;
+//         dispatch(setMessages([...currentMessages, data]));
+//         console.log("Subscribed to messages", chat.selectedUser);
+//     });
+// };
+
+
+
+// Socket listener for message updates
+
+
 export const subscribeToMessages = () => (dispatch, getState) => {
     const { chat, auth } = getState();
-    if (!chat.selectedUser) {
+    if (!chat.selectedUser || !auth.socket) {
         return;
     }
-    if (!auth.socket) {
-        console.error("Socket not available");
-        return;
-    }
-    
-   
+
     
     auth.socket.on('message', (data) => {
         if(data.senderID !== chat.selectedUser) return;
@@ -96,7 +137,12 @@ export const subscribeToMessages = () => (dispatch, getState) => {
         dispatch(setMessages([...currentMessages, data]));
         console.log("Subscribed to messages", chat.selectedUser);
     });
+    auth.socket.on('messageDeleted', (data) => {
+        const currentMessages = getState().chat.messages;
+        dispatch(setMessages(currentMessages.filter(message => message._id !== data._id)));
+    });
 };
+
 export const unsubscribeToMessages = () => (dispatch, getState) => {
     const { auth } = getState();
     if (auth.socket) {
@@ -165,6 +211,13 @@ export const chatSlice = createSlice({
                 state.aiLoading = false;
                 state.error = action.payload;
             })
+            .addCase(deleteMessage.fulfilled, (state, action) => {
+                state.messages = action.payload.messages;
+            })
+            .addCase(deleteMessage.rejected, (state, action) => {
+                state.error = action.payload;
+            });
+            
     },
 });
 
