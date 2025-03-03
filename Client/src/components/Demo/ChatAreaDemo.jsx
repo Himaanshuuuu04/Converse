@@ -6,13 +6,15 @@ import defaultUserImage from "../../assets/defaultUserImage.jpeg";
 import { getMessages, subscribeToMessages, unsubscribeToMessages, deleteMessage } from "@/redux/slice/chatSlice";
 import BlurText from "../ui/TextAnimations/BlurText/BlurText";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
-import { Button } from "../ui/button";
+
+import { useToast } from "@/hooks/use-toast";
 
 export default function ChatAreaDemo() {
     const dispatch = useDispatch();
     const { messages, selectedUserData } = useSelector((state) => state.chat);
     const { authUser } = useSelector((state) => state.auth);
     const messagesEndRef = useRef(null);
+    const {toast} = useToast();
 
     useEffect(() => {
         if (messagesEndRef.current && messages.length > 0) {
@@ -30,7 +32,7 @@ export default function ChatAreaDemo() {
     }, [dispatch, selectedUserData]);
 
     const handleDeleteMessage = (message) => {
-        dispatch(deleteMessage(message));
+        dispatch(deleteMessage({data:message,toast}));
     };
 
     return (

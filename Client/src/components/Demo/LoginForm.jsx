@@ -14,7 +14,7 @@ import {
 import { Input } from "../ui/input";
 import { useDispatch } from "react-redux";
 import { login } from "../../redux/slice/authSlice";
-
+import { useNavigate } from "react-router-dom";
 const formSchema = z.object({
   email: z.string().email({ message: "Enter a valid email." }),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
@@ -23,6 +23,8 @@ const formSchema = z.object({
 export function LoginForm() {
   const { toast } = useToast();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -33,21 +35,13 @@ export function LoginForm() {
   });
 
   const handleSubmit = (data) => {
-    dispatch(login(data));
+    dispatch(login({data,toast,navigate}));
   };
 
-  const handleError = (errors) => {
-    const errorMessages = Object.values(errors).map((err) => err.message).join("\n");
-    toast({
-      title: "Validation Error",
-      description: errorMessages,
-      variant: "destructive",
-    });
-  };
-
+ 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit, handleError)} className="space-y-5">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
         <FormField
           control={form.control}
           name="email"

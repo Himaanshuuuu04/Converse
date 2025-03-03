@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
+import {useToast} from "@/hooks/use-toast";
 import defaultUserImage from "../../assets/defaultUserImage.jpeg";
 import { Button } from "../ui/button";
 import {
@@ -29,6 +29,7 @@ export function UpdateForm() {
     const dispatch = useDispatch();
     const { authUser, isUpdatingProfile } = useSelector((state) => state.auth);
     const [previewImage, setPreviewImage] = useState(authUser?.profileImage || defaultUserImage);
+    const {toast} = useToast();
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -61,7 +62,7 @@ export function UpdateForm() {
         if (data.profileImage) {
             formData.append('profileImage', data.profileImage);
         }
-        dispatch(updateProfile(formData));
+        dispatch(updateProfile({data:formData,toast}));
     };
 
     return (
@@ -138,10 +139,10 @@ export function UpdateForm() {
                                 </FormItem>
                             )}
                         />
-                        <div className="flex items-center justify-between py-2 border-b border-zinc-700 text-sm">
-                            <CalendarDays className="w-4 h-4 inline-block mr-2"/>
-                            <span className="text-gray-400 -ml-20 "> Member Since:</span>
-                            <span className="font-lighter">
+                        <div className="flex items-center justify-between py-2  text-sm">
+                            <CalendarDays className="w-4 h-4 inline-block mr-2 text-white/50 "/>
+                            <span className="text-muted-foreground -ml-20 "> Member Since:</span>
+                            <span className="text-muted-foreground">
                                 {new Date(authUser?.createdAt).toLocaleDateString("en-US", {
                                     day: "numeric",
                                     month: "long",

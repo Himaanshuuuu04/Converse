@@ -45,49 +45,22 @@ export function SignInForm() {
     },
   });
 
-  const handleSubmit = async (data) => {
-    try {
-      const response = await dispatch(signup(data)).unwrap();
-      if (response?.message === "OTP sent to email") {
-        toast({ title: "Success", description: "OTP sent to your email.", variant: "success" });
-        setShowOtp(true);
-      } else {
-        toast({ title: "Error", description: response?.message || "Failed to send OTP.", variant: "destructive" });
-      }
-    } catch (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    }
+  const handleSubmit = (data) => {
+      dispatch(signup({data:data,toast}));
   };
 
-  const handleVerifyOTP = async () => {
-    try {
+  const handleVerifyOTP = () => {
       const email = form.getValues("email");
-      const response = await dispatch(verifyOTP({ email, otp })).unwrap();
-      if (response?.message === "Email verified successfully") {
-        toast({ title: "Success", description: "Email verified successfully!", variant: "success" });
-        navigate("/login"); // Redirect after successful verification
-      } else {
-        toast({ title: "Error", description: response?.message || "Invalid OTP.", variant: "destructive" });
-      }
-    } catch (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    }
+     dispatch(verifyOTP({ data: { email, otp }, toast,navigate }));
+    
+     // Redirect after successful verification
   };
 
-  const handleError = (errors) => {
-    const errorMessages = Object.values(errors)
-      .map((err) => err.message)
-      .join("\n");
-    toast({
-      title: "Validation Error",
-      description: errorMessages,
-      variant: "destructive",
-    });
-  };
+
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit, handleError)} className="space-y-5">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
         {/* Full Name Field */}
         <FormField
           control={form.control}
@@ -134,14 +107,14 @@ export function SignInForm() {
         />
 
         {/* Submit Button */}
-       <Button type="submit" className="w-full">Submit</Button>
+       <Button type="submit" variant="outline" className="w-full">Send verfication Email</Button>
 
         {/* OTP Input Section */}
         
           <div className="space-y-5">
             <FormItem>
               <FormLabel>Enter OTP</FormLabel>
-              <FormControl>
+              <FormControl className="flex justify-center items-center ">
                 <InputOTP
                   maxLength={6}
                   value={otp}
@@ -161,7 +134,7 @@ export function SignInForm() {
 
             {/* Verify OTP Button */}
             <Button type="button" className="w-full" onClick={handleVerifyOTP}>
-              Verify OTP
+              Sign In
             </Button>
           </div>
       

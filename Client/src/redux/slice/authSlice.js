@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { axiosInstance } from '../../lib/axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { io } from 'socket.io-client';
+import { useNavigate } from 'react-router-dom';
 
 const initialState = {
     authUser: null,
@@ -26,35 +27,52 @@ export const checkAuth = createAsyncThunk('auth/checkAuth', async (_, { rejectWi
     }
 });
 
-export const updateProfile = createAsyncThunk('auth/updateProfile', async (data, { rejectWithValue }) => {
+export const updateProfile = createAsyncThunk('auth/updateProfile', async ({data,toast}, { rejectWithValue }) => {
     try {
         const res = await axiosInstance.put('/auth/update-profile', data, {
             headers: { "Content-Type": "multipart/form-data" },
             withCredentials: true,
         });
+        toast({
+            description: "Profile updated successfully.",
+        });
         return { authUser: res.data };
     } catch (err) {
         console.error("Error in updateProfile:", err);
+        toast({
+            variant: "destructive",
+            title: "Error in updating profile",
+            description: err.response.data.message,
+        });
         return rejectWithValue(err.response?.data || { message: "An error occurred" });
     }
 });
 
-export const signup = createAsyncThunk('auth/signup', async (data, { rejectWithValue }) => {
+export const signup = createAsyncThunk('auth/signup', async ({data,toast}, { rejectWithValue }) => {
     try {
         const res = await axiosInstance.post('/auth/signup', data);
-
+        toast({
+            title: "Signup successful",
+            description: "Please check your email for OTP.",
+        });
         return { message: res.data.message };
     } catch (err) {
         console.error("Error in signup:", err);
+        toast({
+            variant: "destructive",
+            title: "Error in Signup",
+            description: err.response.data.message,
+        });
         return rejectWithValue({
             message: err.message,
             code: err.code,
             response: err.response?.data || null,
         });
+       
     }
 });
 
-export const verifyOTP = createAsyncThunk('auth/verifyOTP', async (data, { rejectWithValue, dispatch }) => {
+export const verifyOTP = createAsyncThunk('auth/verifyOTP', async ({data,toast,navigate}, { rejectWithValue, dispatch }) => {
     try {
         const res = await axiosInstance.post('/auth/verify-otp', data);
         const authUser = res.data;
@@ -62,26 +80,44 @@ export const verifyOTP = createAsyncThunk('auth/verifyOTP', async (data, { rejec
         // Dispatch connectSocket after successful login
         dispatch(setAuthUser(authUser));  // Set the user in state immediately
         dispatch(connectSocket());
-
+        toast({
+            title: "verification successful",
+            description: "You are now logged in.",
+        });
+        navigate("/");
         return { authUser };
     } catch (err) {
         console.error("Error in verifyOTP:", err);
+        toast({
+            variant: "destructive",
+            title: "Error in OTP verification",
+            description: err.response.data.message,
+        });
         return rejectWithValue(err?.response?.data || { message: "An error occurred" });
     }
 });
 
-export const login = createAsyncThunk('auth/login', async (data, { rejectWithValue, dispatch }) => {
+export const login = createAsyncThunk('auth/login', async ({data,toast,navigate}, { rejectWithValue, dispatch }) => {
     try {
         const res = await axiosInstance.post('/auth/login', data);
         const authUser = res.data;
-
+        
         // Dispatch connectSocket after successful login
         dispatch(setAuthUser(authUser));  // Set the user in state immediately
         dispatch(connectSocket());
-
+        toast({
+            title: "Login successful",
+            description: "You are now logged in.",
+        });
+        navigate("/");
         return { authUser };
     } catch (err) {
         console.error("Error in login:", err);
+        toast({
+            variant: "destructive",
+            title: "Error in Login",
+            description: err.response.data.message,
+        });
         return rejectWithValue(err?.response?.data || { message: "Login failed" });
     }
 });

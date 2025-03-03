@@ -25,21 +25,31 @@ export const signup = async (req, res) => {
             return res.status(400).json({ message: 'Password must be at least 6 characters long' });
         }
         const user = await User.findOne({ email });
-        if (user) {
-            return res.status(400).json({ message: 'Email already exists' });
+        if (user && user.isEmailVerified) {
+            return res.status(400).json({ message: 'Email already exist, please login' });
         }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
         const otp = generateOTP();
         const otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes expiry
-        const newUser = new User({ email, fullName, password: hashedPassword,emailOTP: otp, emailOTPExpires: otpExpires });
-        if (newUser) {
-            await newUser.save();
+        if(user && !user.isEmailVerified){
+            user.password = hashedPassword;
+            user.emailOTP = otp;
+            user.emailOTPExpires = otpExpires;
+            await user.save();
             await sendOTPEmail(email, otp);
-            res.status(201).json({ message: 'Signup successful. OTP sent to your email.' });
-        }
-        else {
-            return res.status(400).json({ message: 'Invalid User Credentials' });
+            res.status(201).json({ message: 'OTP sent to your email.' });
+
+        }else{
+            const newUser = new User({ email, fullName, password: hashedPassword,emailOTP: otp, emailOTPExpires: otpExpires });
+            if (newUser) {
+                await newUser.save();
+                await sendOTPEmail(email, otp);
+                res.status(201).json({ message: 'Signup successful. OTP sent to your email.' });
+            }
+            else {
+                return res.status(400).json({ message: 'Invalid User Credentials' });
+            }
         }
     } catch (error) {
         console.log("Error in signup controller: ", error);

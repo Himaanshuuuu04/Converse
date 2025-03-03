@@ -1,7 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { axiosInstance } from "../../lib/axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { useToast } from "@/hooks/use-toast"
 
 
 const initialState = {
@@ -78,7 +77,8 @@ export const getAiResponse = createAsyncThunk('message/getAiResponse', async (da
     }
 }); 
 
-export const deleteMessage = createAsyncThunk('message/delete-message', async (data, { rejectWithValue, getState }) => {
+export const deleteMessage = createAsyncThunk('message/delete-message', async ({data,toast}, { rejectWithValue, getState }) => {
+    
     try {
         const state = getState().chat;
         const { authUser } = getState().auth;
@@ -92,34 +92,15 @@ export const deleteMessage = createAsyncThunk('message/delete-message', async (d
         await axiosInstance.delete(`/message/delete-message`, {
             data: { _id: data._id }
         });
+        toast({
+            description: "Your message has been sent.",
+          });
         return { messages: messages.filter(message => message._id !== data._id) };
     } catch (err) {
         console.log("error in deleteMessage: ", err);
         return rejectWithValue(err);
     }
 });
-
-
-
-// export const subscribeToMessages = () => (dispatch, getState) => {
-//     const { chat, auth } = getState();
-//     if (!chat.selectedUser) {
-//         return;
-//     }
-//     if (!auth.socket) {
-//         console.error("Socket not available");
-//         return;
-//     }
-    
-//     auth.socket.on('message', (data) => {
-//         if(data.senderID !== chat.selectedUser) return;
-//         const currentMessages = getState().chat.messages;
-//         dispatch(setMessages([...currentMessages, data]));
-//         console.log("Subscribed to messages", chat.selectedUser);
-//     });
-// };
-
-
 
 // Socket listener for message updates
 
