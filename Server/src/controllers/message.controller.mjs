@@ -3,7 +3,7 @@ import Message from '../models/message.models.mjs';
 import cloudinary from '../lib/cloudinary.mjs';
 import { getReceiverSocketID } from '../lib/socket.mjs';
 import { io } from '../lib/socket.mjs';
-import {GoogleGenerativeAI} from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 
 export const getUsersForSideBar = async (req, res) => {
@@ -67,7 +67,7 @@ export const sendMessage = async (req, res) => {
         if (receiverSocketID) {
             io.to(receiverSocketID).emit('message', message);
         }
-        
+
 
         res.status(201).json(message);
     } catch (error) {
@@ -104,8 +104,8 @@ export const getAiResponse = async (req, res) => {
         const markdownPrompt = `${userInput}\n\n Please format your response using Markdown.`;
 
         const result = await model.generateContent({
-          contents: [{ role: 'user', parts: [{ text: markdownPrompt }] }], // Send as generateContentRequest
-          generationConfig,
+            contents: [{ role: 'user', parts: [{ text: markdownPrompt }] }], // Send as generateContentRequest
+            generationConfig,
         });
         const response = await result.response;
         const text = response.text();
@@ -121,16 +121,23 @@ export const deleteMessage = async (req, res) => {
     try {
         const { _id } = req.body;
         const message = await Message.findByIdAndDelete(_id).exec();
-        
+
         if (!message) {
             return res.status(404).json({ message: "Message not found" });
         }
-
+        if (message.image) {
+            const public_id = message.image.split("/").pop().split(".")[0];
+            await cloudinary.uploader.destroy(`profile_pictures/${public_id}`);
+        }
+        if (message.audio) {
+            const public_id = message.audio.split("/").pop().split(".")[0];
+            await cloudinary.uploader.destroy(`chat-audio/${public_id}`);
+        }
+        await Message.findByIdAndDelete(_id).exec();
         const receiverSocketID = getReceiverSocketID(message.receiverID);
         if (receiverSocketID) {
             io.to(receiverSocketID).emit('messageDeleted', { _id });
         }
-
         res.status(200).json({ message: "Message deleted successfully" });
     } catch (error) {
         console.log("Error in deleteMessage controller: ", error);
