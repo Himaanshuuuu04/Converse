@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate,useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { checkAuth } from "./redux/slice/authSlice";
@@ -15,12 +15,13 @@ import Logout from "./pages/Logout";
 import Aurora from "@/components/ui/Backgrounds/Aurora/Aurora";
 
 export default function App() {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { authUser, isCheckingUser,onlineUsers } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if(!isCheckingUser)
-    dispatch(checkAuth());
+    dispatch(checkAuth(navigate));
   }, [dispatch]);
 
   console.log(onlineUsers);

@@ -147,13 +147,11 @@ export const deleteMessage = async (req, res) => {
 
 export const generateCall = (req,res) => {
     try{
-        const {id,offer} = req.body;
-        console.log("Call initiated for: ", id);
+        const {id,offer,senderData} = req.body;
         const receiverSocketID = getReceiverSocketID(id);
         if(receiverSocketID){
-            io.to(receiverSocketID).emit('incomingCall', {senderID: req.user._id, offer});
+            io.to(receiverSocketID).emit('incomingCall', {senderID: req.user._id,senderData:senderData,offer});
         }
-        console.log(offer);
         res.status(200).json({
             message: "Call initiated",
             receiverID: id

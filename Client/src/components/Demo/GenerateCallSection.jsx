@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Toggle } from "@/components/ui/toggle"
 export default function GenerateCallSection({ id }) {
+
   const toast = useToast();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -63,6 +64,7 @@ export default function GenerateCallSection({ id }) {
       }
       const offer = await peer.getOffer();
       if (isMountedRef.current) {
+        console.log("id from generateCallSection", id);
         dispatch(generateCall({ toast, offer, id }));
       }
     } catch (err) {
