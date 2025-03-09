@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { axiosInstance } from '../../lib/axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { io } from 'socket.io-client';
-
+import {setIncomingCall, setIncomingOffer,setIncomingCallerID} from './callSlice';
 
 
 const initialState = {
@@ -154,8 +154,11 @@ export const connectSocket = () => (dispatch, getState) => {
         socket.on('getOnlineUsers', (userIds) => {
             dispatch(setOnlineUsers({ onlineUsers: userIds }));
         });
-        socket.on('callFromUser', (data) => {
-            dispatch(setCallFromUser({ offer: data.offer, senderID: data.senderID }));
+        socket.on('incomingCall', (data) => {
+            // dispatch(setCallFromUser({ offer: data.offer, senderID: data.senderID }));
+            dispatch(setIncomingCall(true));
+            dispatch(setIncomingOffer(data.offer));
+            dispatch(setIncomingCallerID(data.senderID));
             console.log("Call from user:", data);
         }
         );

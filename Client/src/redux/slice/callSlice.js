@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { axiosInstance } from '../../lib/axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';
+import { set } from 'react-hook-form';
 
 
 const initialState = {
@@ -12,6 +13,7 @@ const initialState = {
     callAccepted: false,
     callRejected: false,
     callEnded: false,
+    incomingOffer: null,
     error: null,
 };
 
@@ -152,12 +154,21 @@ export const callSlice = createSlice({
         },
         setCallerData: (state, action) => {
             state.callerData = action.payload;
+        },
+        setIncomingCallerID: (state, action) => {
+            state.callerID = action.payload;
+        },
+        setIncomingCall: (state, action) => {
+            state.incomingCall = action.payload;
+        },
+        setIncomingOffer: (state, action) => {
+            state.incomingOffer = action.payload;
         }
     },
     extraReducers: (builder) => {
         builder
         .addCase(generateCall.fulfilled, (state, action) => {
-            state.callerID = action.payload.receiverSocketID;
+            state.callerID = action.payload.receiverID;
         })
         .addCase(generateCall.rejected, (state, action) => {
             state.error = action.payload;
@@ -185,5 +196,5 @@ export const callSlice = createSlice({
     },
 });
 
-export const {setOutgoingCall,setCallerData} = callSlice.actions;
+export const {setOutgoingCall,setCallerData,setIncomingCall,setIncomingOffer,setIncomingCallerID} = callSlice.actions;
 export default callSlice.reducer;

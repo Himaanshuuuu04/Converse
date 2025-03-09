@@ -151,12 +151,12 @@ export const generateCall = (req,res) => {
         console.log("Call initiated for: ", id);
         const receiverSocketID = getReceiverSocketID(id);
         if(receiverSocketID){
-            io.to(receiverSocketID).emit('callFromUser', {senderID: req.user._id, offer});
+            io.to(receiverSocketID).emit('incomingCall', {senderID: req.user._id, offer});
         }
         console.log(offer);
         res.status(200).json({
             message: "Call initiated",
-            receiverSocketID
+            receiverID: id
         });
     }catch(error){
         console.log("Error in call controller: ", error);
@@ -177,6 +177,7 @@ export const acceptCall = (req,res) => {
         res.status(500).json({message: 'Internal Server Error'});
     }
 }
+
 
 export const rejectCall = (req,res) => {
     try{
