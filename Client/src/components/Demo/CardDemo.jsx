@@ -1,10 +1,9 @@
-import { ChevronRight, Search } from "lucide-react";
+import { ChevronRight, Search, Radio } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Toggle } from "@/components/ui/toggle";
-import { Radio } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -12,7 +11,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { ContextMenuDemo } from "./ContextMenuDemo";
 import { useDispatch, useSelector } from "react-redux";
 import { getUsers, setSelectedUser } from "@/redux/slice/chatSlice";
@@ -22,20 +26,41 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const CardDemo = ({ className, ...props }) => {
   const dispatch = useDispatch();
-  const { users, selectedUser,isUserLoading } = useSelector((state) => state.chat);
+  const { users, selectedUser, isUserLoading } = useSelector((state) => state.chat);
   const { onlineUsers } = useSelector((state) => state.auth);
   const [viewOnlineUsers, setViewOnlineUsers] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [hasFetchedUsers, setHasFetchedUsers] = useState(false);
 
   useEffect(() => {
-    if(!isUserLoading)dispatch(getUsers());
-  }, [dispatch]);
+    if (!hasFetchedUsers && !isUserLoading && users.length === 0) {
+      dispatch(getUsers());
+      setHasFetchedUsers(true);
+    }
+  }, [hasFetchedUsers, isUserLoading, users,dispatch]);
 
-  // Filter users based on search term and online status
-  const filteredUsers = users.filter(user => 
-    (!viewOnlineUsers || onlineUsers.includes(user._id)) &&
-    user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+  const handleToggleOnlineUsers = useCallback(() => {
+    setViewOnlineUsers((prev) => !prev);
+  }, []);
+
+  const handleSearchTermChange = useCallback((e) => {
+    setSearchTerm(e.target.value);
+  }, []);
+
+  const handleSelectUser = useCallback(
+    (userId) => {
+      dispatch(setSelectedUser(userId));
+    },
+    [dispatch]
   );
+
+  const filteredUsers = useMemo(() => {
+    return users.filter(
+      (user) =>
+        (!viewOnlineUsers || onlineUsers.includes(user._id)) &&
+        user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [users, viewOnlineUsers, searchTerm, onlineUsers]);
 
   return (
     <Card className={cn("md:w-[380px] w-screen", className)} {...props}>
@@ -51,7 +76,7 @@ export const CardDemo = ({ className, ...props }) => {
               className="w-full"
               aria-label="Search users"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearchTermChange}
             />
             <TooltipProvider>
               <Tooltip>
@@ -69,7 +94,7 @@ export const CardDemo = ({ className, ...props }) => {
           <Toggle
             aria-label="Toggle online users"
             variant="outline"
-            onClick={() => setViewOnlineUsers(!viewOnlineUsers)}
+            onClick={handleToggleOnlineUsers}
           >
             <Radio /> Online Users
           </Toggle>
@@ -78,28 +103,34 @@ export const CardDemo = ({ className, ...props }) => {
       <CardContent className="grid gap-0 p-0 overflow-hidden">
         <ScrollArea className="h-full w-full">
           {filteredUsers.length === 0 ? (
-            <div className="text-center text-zinc-500 py-4">No users found</div>
+            <div className="text-center text-zinc-500 py-4">
+              No users found
+            </div>
           ) : (
             filteredUsers.map((user) => (
               <ContextMenuDemo key={user._id}>
                 <button
-                  onClick={() => dispatch(setSelectedUser(user._id))}
+                  onClick={() => handleSelectUser(user._id)}
                   className={cn(
                     "flex items-center border border-collapse space-x-4 py-3 px-4 w-full hover:bg-base-300 transition-colors",
                     selectedUser === user._id ? "bg-white/10" : "bg-black"
                   )}
                 >
                   <Avatar>
-                    <AvatarImage src={user.profileImage || defaultUserImage} className="object-cover" />
+                    <AvatarImage
+                      src={user.profileImage || defaultUserImage}
+                      className="object-cover"
+                    />
                     <AvatarFallback>{user.name}</AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-start flex-1">
                     <span>{user.fullName}</span>
-                    {onlineUsers.includes(user._id) && (
+                    {onlineUsers.includes(user._id) ? (
                       <span className="text-xs text-green-400">Online</span>
-                    )}
-                    {!onlineUsers.includes(user._id) && (
-                      <span className="text-xs text-muted-foreground">Offline</span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        Offline
+                      </span>
                     )}
                   </div>
                   <div className="flex items-center justify-end">

@@ -3,6 +3,7 @@ import { axiosInstance } from "../../lib/axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 
+
 const initialState = {
     messages: [],
     users: [],
@@ -16,7 +17,9 @@ const initialState = {
         audio: null
     },
     aiResponse:"",
-    aiLoading:false
+    aiLoading:false,
+    isCallOn:false,
+    receiverSocketID:""
 };
 
 export const getUsers = createAsyncThunk('message/users', async (_, { rejectWithValue }) => {
@@ -93,10 +96,15 @@ export const deleteMessage = createAsyncThunk('message/delete-message', async ({
             data: { _id: data._id }
         });
         toast({
-            description: "Your message has been sent.",
+            description: "Your message has been deleted.",
           });
         return { messages: messages.filter(message => message._id !== data._id) };
     } catch (err) {
+        toast({
+            variant: "destructive",
+            title: "Error in deleting message",
+            description: err.response.data.message,
+        });
         console.log("error in deleteMessage: ", err);
         return rejectWithValue(err);
     }
@@ -133,6 +141,63 @@ export const unsubscribeToMessages = () => (dispatch, getState) => {
    
 };
 
+export const generateCall = createAsyncThunk('message/generateCall', async ({toast,offer}, { rejectWithValue, getState }) => {
+    try {
+        //fix onlineuser calling only
+        const {chat,auth} = getState();
+        if(!auth.onlineUsers.includes(chat.selectedUser)){
+            throw new toast({
+                variant: "destructive",
+                description: "Calling is only available to Online Users",
+            });
+        }
+        const res = await axiosInstance.post('/message/generateCall',{
+            id:chat.selectedUser,
+            offer:offer
+        });
+        console.log("callUser: ", res.data);
+        return { receiverSocketID: res.data.receiverSocketID };
+    } catch (err) {
+        console.log("error in call: ", err);
+        toast({
+            variant: "destructive",
+            title: "Calling is only available to Online Users",
+            description: err.response.data.message,
+        });
+        return rejectWithValue(err);
+    }
+});
+
+export const acceptCall = createAsyncThunk('message/acceptCall', async ({toast,answer}, { rejectWithValue, getState }) => {
+    try {
+        const {chat} = getState();
+        const res = await axiosInstance.post('/message/acceptCall',{
+            id:chat.selectedUser,
+            answer:answer
+        });
+        console.log("acceptCall: ", res.data);
+        return { receiverSocketID: res.data.receiverSocketID };
+    } catch (err) {
+        console.log("error in acceptCall: ", err);
+        toast({
+            variant: "destructive",
+            title: "Error in accepting call",
+            description: err.response.data.message,
+        });
+        return rejectWithValue(err);
+    }
+});
+export const endCall = createAsyncThunk('message/endCall', async (_, { rejectWithValue, getState }) => {
+    try {
+        const  chat = getState().chat;
+        await axiosInstance.post('/message/endCall', {id:chat.selectedUser});
+        return;
+    } catch (err) {
+        console.log("error in endCall: ", err);
+        return rejectWithValue(err);
+    }
+});
+
 export const chatSlice = createSlice({
     name: 'chat',
     initialState,
@@ -148,6 +213,9 @@ export const chatSlice = createSlice({
         },
         setMessages: (state, action) => {
             state.messages = action.payload;
+        },
+        setIsCallOn: (state, action) => {
+            state.isCallOn = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -197,10 +265,24 @@ export const chatSlice = createSlice({
             })
             .addCase(deleteMessage.rejected, (state, action) => {
                 state.error = action.payload;
+            })
+            .addCase(generateCall.fulfilled, (state, action) => {
+                state.receiverSocketID = action.payload.receiverSocketID;
+                state.isCallOn = true;
+            })
+            .addCase(generateCall.rejected, (state, action) => {
+                state.error = action.payload;
+            })
+            .addCase(endCall.fulfilled, (state) => {
+                state.receiverSocketID = null;
+                state.isCallOn = false;
+            })
+            .addCase(endCall.rejected, (state, action) => {
+                state.error = action.payload;
             });
             
     },
 });
 
-export const { setSelectedUser, setSelectedUserData, setMessageToSend,setMessages } = chatSlice.actions;
+export const { setSelectedUser, setSelectedUserData, setMessageToSend,setMessages,setIsCallOn } = chatSlice.actions;
 export default chatSlice.reducer;

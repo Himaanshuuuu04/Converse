@@ -2,7 +2,8 @@ import { createSlice } from '@reduxjs/toolkit';
 import { axiosInstance } from '../../lib/axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { io } from 'socket.io-client';
-import { useNavigate } from 'react-router-dom';
+
+
 
 const initialState = {
     authUser: null,
@@ -14,6 +15,12 @@ const initialState = {
     socket: null,
     onlineUsers: [],
     message: null,
+    incomingCallerId: "",
+    offer: null,
+    callAccepted: false,
+    callEnded: false,
+    callRejected: false,
+    callFromUser: false,
 };
 
 export const checkAuth = createAsyncThunk('auth/checkAuth', async (_, { rejectWithValue, dispatch }) => {
@@ -147,6 +154,29 @@ export const connectSocket = () => (dispatch, getState) => {
         socket.on('getOnlineUsers', (userIds) => {
             dispatch(setOnlineUsers({ onlineUsers: userIds }));
         });
+        socket.on('callFromUser', (data) => {
+            dispatch(setCallFromUser({ offer: data.offer, senderID: data.senderID }));
+            console.log("Call from user:", data);
+        }
+        );
+        socket.on('callAccepted', (data) => {
+            setCallAccepted();
+            console.log("Call accepted:", data);
+        }
+        );
+        socket.on('callRejected', (data) => {
+            console.log("Call rejected:", data);
+        }
+        );
+        socket.on('callEnded', (data) => {
+            console.log("Call ended:", data);
+        }
+        );
+        socket.on('error', (err) => {
+            console.error("Socket error:", err);
+        }
+        );
+        console.log(socket)
         dispatch(setSocket({ socket }));
         socket.on('disconnect', () => {
             console.log("❌ Socket disconnected.");
@@ -174,7 +204,23 @@ export const authSlice = createSlice({
         },
         setOnlineUsers: (state, action) => {
             state.onlineUsers = action.payload.onlineUsers;
-        }
+        },
+        setCallFromUser: (state, action) => {
+            state.callFromUser = true;
+            state.offer = action.payload.offer;
+            state.incomingCallerId = action.payload.senderID;
+        },
+        setCallAccepted: (state, action) => {
+            state.callAccepted = true;
+        },
+        setCallEnded: (state, action) => {
+            state.callEnded = action.payload;
+        },
+        setCallRejected: (state, action) => {
+            state.callRejected = action.payload;
+        },
+        
+
     },
     extraReducers: (builder) => {
         builder

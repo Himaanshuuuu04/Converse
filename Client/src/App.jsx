@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import SignIn from "./pages/SignIn";
 import UpdateProfile from "./pages/UpdateProfile";
 import Layout from "./components/ui/Layout";
+import Call from "./pages/Call";
 import { SparklesCore } from "@/components/ui/sparkles";
 import { Toaster } from "@/components/ui/toaster";
 import Logout from "./pages/Logout";
@@ -75,6 +76,14 @@ export default function App() {
           <Route 
             path="/logout"
             element={ <Logout/> }
+          />
+          <Route 
+            path="/call/:id"
+            element={ <Call/> }
+          />
+          <Route
+            path="*"
+            element={<div>404 Not Found</div>}
           />
         </Route>
         {/* Public Routes */}
