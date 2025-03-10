@@ -16,20 +16,20 @@ const initialState = {
         text: "",
         audio: null
     },
-    aiResponse:"",
-    aiLoading:false,
-    isCallOn:false,
-    receiverSocketID:""
+    aiResponse: "",
+    aiLoading: false,
+    isCallOn: false,
+    receiverSocketID: ""
 };
 
 export const getUsers = createAsyncThunk('message/users', async (_, { rejectWithValue }) => {
 
     try {
         const res = await axiosInstance.get('/message/users');
-        
+
         return { users: res.data };
     } catch (err) {
-        
+
         console.log("error in getUsers: ", err);
         return rejectWithValue(err);
     }
@@ -66,7 +66,7 @@ export const sendMessage = createAsyncThunk('message/send-message', async (data,
     }
 });
 
-export const getAiResponse = createAsyncThunk('message/getAiResponse', async (data, { rejectWithValue}) => {
+export const getAiResponse = createAsyncThunk('message/getAiResponse', async (data, { rejectWithValue }) => {
     try {
         if (!data.userInput) {
             throw new Error("User input is required");
@@ -78,10 +78,10 @@ export const getAiResponse = createAsyncThunk('message/getAiResponse', async (da
         Toast.Error("Error in AI response");
         return rejectWithValue(err);
     }
-}); 
+});
 
-export const deleteMessage = createAsyncThunk('message/delete-message', async ({data,toast}, { rejectWithValue, getState }) => {
-    
+export const deleteMessage = createAsyncThunk('message/delete-message', async ({ data, toast }, { rejectWithValue, getState }) => {
+
     try {
         const state = getState().chat;
         const { authUser } = getState().auth;
@@ -97,7 +97,7 @@ export const deleteMessage = createAsyncThunk('message/delete-message', async ({
         });
         toast({
             description: "Your message has been deleted.",
-          });
+        });
         return { messages: messages.filter(message => message._id !== data._id) };
     } catch (err) {
         toast({
@@ -119,9 +119,9 @@ export const subscribeToMessages = () => (dispatch, getState) => {
         return;
     }
 
-    
+
     auth.socket.on('message', (data) => {
-        if(data.senderID !== chat.selectedUser) return;
+        if (data.senderID !== chat.selectedUser) return;
         const currentMessages = getState().chat.messages;
         dispatch(setMessages([...currentMessages, data]));
         console.log("Subscribed to messages", chat.selectedUser);
@@ -135,25 +135,25 @@ export const subscribeToMessages = () => (dispatch, getState) => {
 export const unsubscribeToMessages = () => (dispatch, getState) => {
     const { auth } = getState();
     if (auth.socket) {
-        auth.socket.off('message'); 
+        auth.socket.off('message');
         console.log("Unsubscribed to messages", getState().chat.selectedUser);
     }
-   
+
 };
 
-export const generateCall = createAsyncThunk('message/generateCall', async ({toast,offer}, { rejectWithValue, getState }) => {
+export const generateCall = createAsyncThunk('message/generateCall', async ({ toast, offer }, { rejectWithValue, getState }) => {
     try {
         //fix onlineuser calling only
-        const {chat,auth} = getState();
-        if(!auth.onlineUsers.includes(chat.selectedUser)){
+        const { chat, auth } = getState();
+        if (!auth.onlineUsers.includes(chat.selectedUser)) {
             throw new toast({
                 variant: "destructive",
                 description: "Calling is only available to Online Users",
             });
         }
-        const res = await axiosInstance.post('/message/generateCall',{
-            id:chat.selectedUser,
-            offer:offer
+        const res = await axiosInstance.post('/message/generateCall', {
+            id: chat.selectedUser,
+            offer: offer
         });
         console.log("callUser: ", res.data);
         return { receiverSocketID: res.data.receiverSocketID };
@@ -168,12 +168,12 @@ export const generateCall = createAsyncThunk('message/generateCall', async ({toa
     }
 });
 
-export const acceptCall = createAsyncThunk('message/acceptCall', async ({toast,answer}, { rejectWithValue, getState }) => {
+export const acceptCall = createAsyncThunk('message/acceptCall', async ({ toast, answer }, { rejectWithValue, getState }) => {
     try {
-        const {chat} = getState();
-        const res = await axiosInstance.post('/message/acceptCall',{
-            id:chat.selectedUser,
-            answer:answer
+        const { chat } = getState();
+        const res = await axiosInstance.post('/message/acceptCall', {
+            id: chat.selectedUser,
+            answer: answer
         });
         console.log("acceptCall: ", res.data);
         return { receiverSocketID: res.data.receiverSocketID };
@@ -189,8 +189,8 @@ export const acceptCall = createAsyncThunk('message/acceptCall', async ({toast,a
 });
 export const endCall = createAsyncThunk('message/endCall', async (_, { rejectWithValue, getState }) => {
     try {
-        const  chat = getState().chat;
-        await axiosInstance.post('/message/endCall', {id:chat.selectedUser});
+        const chat = getState().chat;
+        await axiosInstance.post('/message/endCall', { id: chat.selectedUser });
         return;
     } catch (err) {
         console.log("error in endCall: ", err);
@@ -280,9 +280,9 @@ export const chatSlice = createSlice({
             .addCase(endCall.rejected, (state, action) => {
                 state.error = action.payload;
             });
-            
+
     },
 });
 
-export const { setSelectedUser, setSelectedUserData, setMessageToSend,setMessages,setIsCallOn } = chatSlice.actions;
+export const { setSelectedUser, setSelectedUserData, setMessageToSend, setMessages, setIsCallOn } = chatSlice.actions;
 export default chatSlice.reducer;

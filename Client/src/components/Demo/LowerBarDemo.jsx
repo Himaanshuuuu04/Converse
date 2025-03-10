@@ -8,20 +8,20 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { sendMessage, setMessageToSend,getAiResponse } from "@/redux/slice/chatSlice";
+import { sendMessage, setMessageToSend, getAiResponse } from "@/redux/slice/chatSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Button } from "@/components/ui/button"
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
 } from "@/components/ui/popover"
 import { ScrollArea } from "../ui/scroll-area";
 
 export default function LowerBarDemo() {
     const dispatch = useDispatch();
-    const { messageToSend,aiResponse,aiLoading } = useSelector((state) => state.chat);
+    const { messageToSend, aiResponse, aiLoading } = useSelector((state) => state.chat);
     const [selectedImage, setSelectedImage] = useState(null);
     const [imageFile, setImageFile] = useState(null);
     const fileInputRef = useRef(null);
@@ -39,7 +39,8 @@ export default function LowerBarDemo() {
     const handleSendMessage = () => {
         if (!messageToSend.text.trim() && !imageFile) return;
         const formData = new FormData();
-        formData.append("text", messageToSend.text);
+        const cleanedText = messageToSend.text.replace(/^\*+/, "");
+        formData.append("text", cleanedText);
         if (imageFile) {
             formData.append("file", imageFile);
         }
@@ -60,11 +61,11 @@ export default function LowerBarDemo() {
     };
 
     const handleAiResponse = () => {
-        dispatch(getAiResponse({ userInput : messageToSend.text }));
+        dispatch(getAiResponse({ userInput: messageToSend.text }));
     }
 
     return (
-        
+
         <div className="flex items-center bg-black p-4 h-16 border-t w-full sticky bottom-0">
             <div className="flex items-center space-x-4 w-full">
                 <TooltipProvider>
@@ -89,7 +90,7 @@ export default function LowerBarDemo() {
                     </Tooltip>
 
                     <ChatInputDemo />
-                    
+
                     <Popover>
                         <PopoverTrigger asChild>
                             <Button variant="outline" onClick={handleAiResponse}>
@@ -99,15 +100,30 @@ export default function LowerBarDemo() {
                         <PopoverContent align="end" sideOffset={20} className="w-96 p-4 shadow-md">
                             <h1 className="font-semibold text-xl text-cyan-400">AI Generated</h1>
                             <ScrollArea className="max-h-80 h-fit overflow-auto font-extralight">
-                                
-                                    {aiLoading ? "Loading" : <ReactMarkdown>{aiResponse}</ReactMarkdown>}
-                                
+                                {aiLoading ? (
+                                    "Loading..."
+                                ) : aiResponse ? (
+                                    aiResponse.split("\n").map((response, index) => (
+                                        <p
+                                            key={index}
+                                            className="cursor-pointer hover:bg-gray-400 p-1 rounded-md transition"
+                                            onClick={() => {
+                                                dispatch(setMessageToSend({ text: response, audio: null }));
+                                                handleSendMessage();
+                                            }}
+                                        >
+                                            {response}
+                                        </p>
+                                    ))
+                                ) : (
+                                    <p className="text-gray-500">No suggestions available</p>
+                                )}
                             </ScrollArea>
                         </PopoverContent>
                     </Popover>
 
-                    
-                    
+
+
 
 
                     <Tooltip>
@@ -139,6 +155,6 @@ export default function LowerBarDemo() {
                 </div>
             )}
         </div>
-       
+
     );
 }

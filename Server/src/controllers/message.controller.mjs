@@ -84,27 +84,24 @@ export const getAiResponse = async (req, res) => {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-        model: "gemini-2.0-flash-exp", // Use the correct model name here
+        model: "gemini-2.0-flash-exp",
     });
     const generationConfig = {
         temperature: 0.75,
         topP: 0.95,
         topK: 40,
         maxOutputTokens: 8192,
-        responseMimeType: "text/plain", // Changed to markdown
+        responseMimeType: "text/plain",
     };
 
     try {
-        const { userInput } = req.body; // Assuming the user's prompt is sent in the request body as 'userInput'
+        const { userInput } = req.body;
         if (!userInput) {
             return res.status(400).json({ message: "Prompt is required in the request body", userInput });
         }
-
-        // Add a prompt to encourage Markdown output (optional but recommended)
-        const markdownPrompt = `${userInput}\n\n Please format your response using Markdown.`;
-
+        const prompt = `Provide three different variations of the following message while keeping the meaning the same. Only return the variations, without any explanations or additional text:\n"${userInput}"`;
         const result = await model.generateContent({
-            contents: [{ role: 'user', parts: [{ text: markdownPrompt }] }], // Send as generateContentRequest
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
             generationConfig,
         });
         const response = await result.response;
@@ -145,62 +142,62 @@ export const deleteMessage = async (req, res) => {
     }
 }
 
-export const generateCall = (req,res) => {
-    try{
-        const {id,offer,senderData} = req.body;
+export const generateCall = (req, res) => {
+    try {
+        const { id, offer, senderData } = req.body;
         const receiverSocketID = getReceiverSocketID(id);
-        if(receiverSocketID){
-            io.to(receiverSocketID).emit('incomingCall', {senderID: req.user._id,senderData:senderData,offer});
+        if (receiverSocketID) {
+            io.to(receiverSocketID).emit('incomingCall', { senderID: req.user._id, senderData: senderData, offer });
         }
         res.status(200).json({
             message: "Call initiated",
             receiverID: id
         });
-    }catch(error){
+    } catch (error) {
         console.log("Error in call controller: ", error);
-        res.status(500).json({message: 'Internal Server Error'});
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 }
 
-export const acceptCall = (req,res) => {
-    try{
-        const {id,answer} = req.body;
+export const acceptCall = (req, res) => {
+    try {
+        const { id, answer } = req.body;
         const receiverSocketID = getReceiverSocketID(id);
-        if(receiverSocketID){
-            io.to(receiverSocketID).emit('callAccepted', {senderID: req.user._id, answer});
+        if (receiverSocketID) {
+            io.to(receiverSocketID).emit('callAccepted', { senderID: req.user._id, answer });
         }
-        res.status(200).json({message: "Call accepted"});
-    }catch(error){
+        res.status(200).json({ message: "Call accepted" });
+    } catch (error) {
         console.log("Error in acceptCall controller: ", error);
-        res.status(500).json({message: 'Internal Server Error'});
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 }
 
 
-export const rejectCall = (req,res) => {
-    try{
-        const {id} = req.body;
+export const rejectCall = (req, res) => {
+    try {
+        const { id } = req.body;
         const receiverSocketID = getReceiverSocketID(id);
-        if(receiverSocketID){
-            io.to(receiverSocketID).emit('callRejected', {senderID: req.user._id});
+        if (receiverSocketID) {
+            io.to(receiverSocketID).emit('callRejected', { senderID: req.user._id });
         }
-        res.status(200).json({message: "Call rejected"});
-    }catch(error){
+        res.status(200).json({ message: "Call rejected" });
+    } catch (error) {
         console.log("Error in rejectCall controller: ", error);
-        res.status(500).json({message: 'Internal Server Error'});
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 }
 
-export const endCall = (req,res) => {
-    try{
-        const {id} = req.body;
+export const endCall = (req, res) => {
+    try {
+        const { id } = req.body;
         const receiverSocketID = getReceiverSocketID(id);
-        if(receiverSocketID){
-            io.to(receiverSocketID).emit('callEnded', {senderID: req.user._id});
+        if (receiverSocketID) {
+            io.to(receiverSocketID).emit('callEnded', { senderID: req.user._id });
         }
-        res.status(200).json({message: "Call ended"});
-    }catch(error){
+        res.status(200).json({ message: "Call ended" });
+    } catch (error) {
         console.log("Error in endCall controller: ", error);
-        res.status(500).json({message: 'Internal Server Error'});
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 }
