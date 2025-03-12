@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { setOutgoingCall,setCallerData } from "@/redux/slice/callSlice";
+import {setCallerData } from "@/redux/slice/callSlice";
 export default function TopBarDemo() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -59,9 +59,8 @@ export default function TopBarDemo() {
       });
       return;
     }
-    dispatch(setOutgoingCall(true));
     dispatch(setCallerData(selectedUserData));
-    navigate(`/call/${selectedUser}`);
+    navigate(`/outgoingCall/${selectedUser}`);
   };
 
   return (

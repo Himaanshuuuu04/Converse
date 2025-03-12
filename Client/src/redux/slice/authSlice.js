@@ -5,11 +5,12 @@ import { io } from "socket.io-client";
 import {
   setIncomingCall,
   setIncomingOffer,
-  setIncomingCallerID,
   setCallerData,
   setCallAccepted,
   setCallRejected,
   setOutgoingCall,
+  setCallerID,
+  setAnswerOffer
 } from "./callSlice";
 
 const initialState = {
@@ -26,11 +27,9 @@ const initialState = {
 
 export const checkAuth = createAsyncThunk(
   "auth/checkAuth",
-  async (navigate, { rejectWithValue, dispatch }) => {
+  async (_,{ rejectWithValue}) => {
     try {
       const res = await axiosInstance.get("/auth/check");
-
-      dispatch(connectSocket(navigate));
       return { authUser: res.data };
     } catch (err) {
       console.error("Error in checkAuth:", err?.response?.data || err.message);
@@ -182,27 +181,23 @@ export const connectSocket = (navigate) => (dispatch, getState) => {
     });
     socket.on("incomingCall", (data) => {
       console.log("Incoming call data:", data);
-
-      dispatch(setIncomingCall(true));
       dispatch(setIncomingOffer(data.offer));
-      dispatch(setIncomingCallerID(data.senderID));
+      dispatch(setCallerID(data.senderID));
       dispatch(setCallerData(data.senderData));
-
-      navigate("/call/" + data.senderID);
+      navigate("/IncomingCall/" + data.senderID);
     });
     socket.on("callAccepted", (data) => {
       dispatch(setCallAccepted(true));
-      dispatch(setIncomingOffer(data.answer));
-      console.log("Call accepted:", data);
+      dispatch(setAnswerOffer(data.answer));
+      console.log("Call accepted , consoling from authslice :", data);
     });
     socket.on("callRejected", (data) => {
       console.log("Call rejected:", data);
       dispatch(setCallRejected(true));
       dispatch(setIncomingOffer(null));
-      dispatch(setIncomingCallerID(null));
-      dispatch(setCallerData(null));
       dispatch(setCallerID(null));
-      dispatch(setOutgoingCall(false));
+      dispatch(setCallerData(null));
+      navigate("/");
     });
     socket.on("callEnded", (data) => {
       console.log("Call ended:", data);
@@ -210,7 +205,7 @@ export const connectSocket = (navigate) => (dispatch, getState) => {
     socket.on("error", (err) => {
       console.error("Socket error:", err);
     });
-    console.log(socket);
+   
     dispatch(setSocket({ socket }));
     socket.on("disconnect", () => {
       console.log("❌ Socket disconnected.");

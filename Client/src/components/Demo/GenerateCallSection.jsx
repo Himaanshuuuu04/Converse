@@ -16,13 +16,17 @@ import peer from "@/service/peer";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Toggle } from "@/components/ui/toggle"
+
+
+
 export default function GenerateCallSection({ id }) {
 
   const toast = useToast();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { callerData } = useSelector((state) => state.call);
+  const { callerData,answerOffer } = useSelector((state) => state.call);
   const [myVideo, setMyVideo] = useState(null);
+  const [remoteVideo, setRemoteVideo] = useState(null);
   const mainVideoRef = useRef(null);
   const overlayVideoRef = useRef(null);
   const isMountedRef = useRef(true); // Track component mount status
@@ -44,7 +48,7 @@ export default function GenerateCallSection({ id }) {
     dispatch(endCall({ toast, navigate }));
   };
 
-  const handleCallUser = useCallback(async () => {
+  const handleCallUser = useCallback(async () => {        
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
@@ -56,25 +60,71 @@ export default function GenerateCallSection({ id }) {
         return;
       }
       setMyVideo(stream);
-      if (mainVideoRef.current) {
-        mainVideoRef.current.srcObject = stream;
-      }
+      // if (mainVideoRef.current) {
+      //   mainVideoRef.current.srcObject = stream;
+      // }
       if (overlayVideoRef.current) {
         overlayVideoRef.current.srcObject = stream;
       }
       const offer = await peer.getOffer();
       if (isMountedRef.current) {
-        console.log("id from generateCallSection", id);
         dispatch(generateCall({ toast, offer, id }));
       }
     } catch (err) {
       console.log("Error in getting user media: ", err);
     }
-  }, [dispatch, id, toast]);
+  }, [dispatch, id]);
+
+
+  useEffect(() => {
+    if (answerOffer) {
+      (async () => {
+        try {
+          await peer.setLocalDescription(answerOffer);
+          for(const track of myVideo?.getTracks() || []) {
+            peer.peer.addTrack(track, myVideo);
+          }
+        } catch (err) {
+          console.log("Error in accepting call: ", err);
+        }
+      })();
+    }
+  }, [answerOffer, myVideo]);
+
+  useEffect(() => {
+    const handleTrackEvent = async (event) => {
+      if (!remoteVideo) {
+        setRemoteVideo(event.streams[0]);
+        if (mainVideoRef.current) {
+          mainVideoRef.current.srcObject = event.streams[0];
+        }
+      }
+    };
+
+    peer.peer.addEventListener("track", handleTrackEvent);
+    return () => {
+      peer.peer.removeEventListener("track", handleTrackEvent);
+    };
+  }, [remoteVideo]);
 
   // Run the call setup only once on mount.
   useEffect(() => {
     handleCallUser();
+    return () => {
+      if (myVideo) {
+        myVideo.getTracks().forEach((track) => {
+          track.enabled = false;
+          track.stop();
+        });
+        setMyVideo(null);
+      }
+      if (mainVideoRef.current) {
+        mainVideoRef.current.srcObject = null;
+      }
+      if (overlayVideoRef.current) {
+        overlayVideoRef.current.srcObject = null;
+      }
+    }
   }, []);
 
   return (
@@ -88,7 +138,7 @@ export default function GenerateCallSection({ id }) {
         <CardContent className="flex justify-center items-center p-4">
           {/* Video Container */}
           <div className="w-full h-[calc(100vh-25vh)] max-w-4xl relative rounded-xl overflow-hidden">
-            {myVideo && (
+            {remoteVideo ? (
               <video
                 ref={mainVideoRef}
                 autoPlay
@@ -96,6 +146,10 @@ export default function GenerateCallSection({ id }) {
                 
                 className="absolute top-0 left-0 w-full h-full"
               />
+            ): (
+              <div className="flex items-center justify-center w-full h-full bg-gray-200 text-gray-500">
+                Waiting for response...
+              </div>
             )}
           </div>
           {/* Smaller Video - Overlay */}

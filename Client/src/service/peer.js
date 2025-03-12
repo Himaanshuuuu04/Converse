@@ -1,32 +1,46 @@
 class PeerService {
     constructor() {
-        if (!this.peer) {
-            this.peer = new RTCPeerConnection({
-                iceServers: [
-                    {
-                        urls: [
-                            'stun:stun.l.google.com:19302', // Google's public STUN server
-                            'stun:global.stun.twilio.com:3478' // Twilio STUN server
-                        ]
-                    }
-                ]
-            });
-        }
+        this.peer = new RTCPeerConnection({
+            iceServers: [
+                {
+                    urls: [
+                        'stun:stun.l.google.com:19302', // Google's public STUN server
+                        'stun:global.stun.twilio.com:3478' // Twilio STUN server
+                    ]
+                }
+            ]
+        });
     }
+
     async getOffer() {
-        if(this.peer){
-        const offer = await this.peer.createOffer();
-        await this.peer.setLocalDescription(new RTCSessionDescription(offer));
-        return offer;
+        try {
+            const offer = await this.peer.createOffer();
+            await this.peer.setLocalDescription(offer);
+            return offer;
+        } catch (error) {
+            console.error('Error creating offer:', error);
+            throw error;
         }
     }
 
     async getAnswer(offer) {
-        if(this.peer){
-        await this.peer.setRemoteDescription(offer);
-        const answer = await this.peer.createAnswer();
-        await this.peer.setLocalDescription(new RTCSessionDescription(answer));
-        return answer;
+        try {
+            await this.peer.setRemoteDescription(new RTCSessionDescription(offer));
+            const answer = await this.peer.createAnswer();
+            await this.peer.setLocalDescription(answer);
+            return answer;
+        } catch (error) {
+            console.error('Error creating answer:', error);
+            throw error;
+        }
+    }
+
+    async setLocalDescription(answer) {
+        try {
+            await this.peer.setRemoteDescription(new RTCSessionDescription(answer));
+        } catch (error) {
+            console.error('Error setting local description:', error);
+            throw error;
         }
     }
 }

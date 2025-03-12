@@ -21,7 +21,7 @@ import { useNavigate } from "react-router-dom";
 import { Toggle } from "@/components/ui/toggle";
 export default function IncomingCallSection({ id }) {
   const toast = useToast();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch();       
   const navigate = useNavigate();
   const { callerData, callerID, incomingOffer } = useSelector(
     (state) => state.call
@@ -32,8 +32,32 @@ export default function IncomingCallSection({ id }) {
   const isMountedRef = useRef(true); // Track component mount status
 
   const handleRejectCall = () => {
-    dispatch(rejectCall({ toast,id:callerID }));
+    dispatch(rejectCall({ toast,navigate,id:callerID }));
   };
+  
+
+  // useEffect(() => {
+  //   return () => {
+  //     isMountedRef.current = false;
+  //     // Cleanup video streams on unmount
+  //     if (myVideo) {
+  //       myVideo.getTracks().forEach(track => track.stop());
+  //     }
+  //   };
+  // }, []);
+
+  useEffect(() => {
+    // Assign video streams once elements are rendered
+    if (myVideo) {
+      if (overlayVideoRef.current) {
+        overlayVideoRef.current.srcObject = myVideo;
+      }
+      // Uncomment if using mainVideoRef
+      // if (mainVideoRef.current) {
+      //   mainVideoRef.current.srcObject = myVideo;
+      // }
+    }
+  }, [myVideo]);
 
   const handleIncomingCall = useCallback(async () => {
     try {
@@ -42,25 +66,19 @@ export default function IncomingCallSection({ id }) {
         audio: true,
       });
       if (!isMountedRef.current) {
-        // Component unmounted, so stop the stream and exit.
-        stream.getTracks().forEach((track) => track.stop());
+        stream.getTracks().forEach(track => track.stop());
         return;
       }
-      setMyVideo(stream);
-      if (mainVideoRef.current) {
-        mainVideoRef.current.srcObject = stream;
-      }
-      if (overlayVideoRef.current) {
-        overlayVideoRef.current.srcObject = stream;
-      }
+      setMyVideo(stream); // Triggers re-render and useEffect
       const answer = await peer.getAnswer(incomingOffer);
       if (isMountedRef.current) {
-        dispatch(acceptCall({ toast, answer, id }));
+        dispatch(acceptCall({ toast, answer, id: callerID }));
       }
     } catch (err) {
       console.log("Error in getting user media: ", err);
+      toast({ title: "Failed to access camera/microphone" });
     }
-  }, [dispatch, id, toast]);
+  }, [dispatch, callerID, incomingOffer]); 
 
   
 

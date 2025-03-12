@@ -4,7 +4,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 
 
 const initialState = {
-  receivedOffer: null,
+  answerOffer: null,
   callerID: null,
   callerData: null,
   outgoingCall: false,
@@ -17,7 +17,7 @@ const initialState = {
 };
 
 export const generateCall = createAsyncThunk(
-  "message/generateCall",
+  "call/generateCall",
   async ({ toast, offer, id}, { rejectWithValue, getState }) => {
     
     try {
@@ -50,12 +50,12 @@ export const generateCall = createAsyncThunk(
 );
 
 export const acceptCall = createAsyncThunk(
-  "message/acceptCall",
-  async ({ toast, answer }, { rejectWithValue, getState }) => {
+  "call/acceptCall",
+  async ({ toast, answer,id }, { rejectWithValue, getState }) => {
     try {
       const { chat } = getState();
       const res = await axiosInstance.post("/message/acceptCall", {
-        id: chat.selectedUser,
+        id: id,
         answer: answer,
       });
       console.log("acceptCall: ", res.data);
@@ -73,12 +73,13 @@ export const acceptCall = createAsyncThunk(
 );
 
 export const rejectCall = createAsyncThunk(
-  "message/rejectCall",
-  async ({ toast, id }, { rejectWithValue, getState }) => {
+  "call/rejectCall",
+  async ({ toast,navigate, id }, { rejectWithValue, getState }) => {
     try {
       await axiosInstance.post("/message/rejectCall", {
         id: id,
       });
+      navigate("/");
       return;
     } catch (err) {
       console.log("error in rejectCall: ", err);
@@ -93,7 +94,7 @@ export const rejectCall = createAsyncThunk(
 );
 
 export const endCall = createAsyncThunk(
-  "message/endCall",
+  "call/endCall",
   async ({ toast, navigate }, { rejectWithValue, getState }) => {
     try {
       const { call } = getState();
@@ -124,9 +125,7 @@ export const callSlice = createSlice({
     setCallerData: (state, action) => {
       state.callerData = action.payload;
     },
-    setIncomingCallerID: (state, action) => {
-      state.callerID = action.payload;
-    },
+
     setIncomingCall: (state, action) => {
       state.incomingCall = action.payload;
     },
@@ -139,6 +138,12 @@ export const callSlice = createSlice({
     setCallRejected: (state, action) => {
       state.callRejected = action.payload;
     },
+    setCallerID: (state, action) => {
+      state.callerID = action.payload;
+    },
+    setAnswerOffer: (state, action) => {
+      state.answerOffer = action.payload;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -149,15 +154,15 @@ export const callSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(acceptCall.fulfilled, (state) => {
-        state.incomingCall = false;
         state.callAccepted = true;
       })
       .addCase(acceptCall.rejected, (state, action) => {
         state.error = action.payload;
       })
       .addCase(rejectCall.fulfilled, (state) => {
-        state.incomingCall = false;
-        state.callRejected = true;
+        state.callerData = null;
+        state.callerID = null;
+        state.incomingOffer = null;
       })
       .addCase(rejectCall.rejected, (state, action) => {
         state.error = action.payload;
@@ -165,8 +170,6 @@ export const callSlice = createSlice({
       .addCase(endCall.fulfilled, (state) => {
         state.callerID = null;
         state.callerData = null;
-        state.outgoingCall = false;
-        state.incomingCall = false;
         state.callAccepted = false;
         state.callRejected = false;
         state.callEnded = true;
@@ -182,8 +185,9 @@ export const {
   setCallerData,
   setIncomingCall,
   setIncomingOffer,
-  setIncomingCallerID,
   setCallAccepted,
   setCallRejected,
+  setCallerID,
+  setAnswerOffer
 } = callSlice.actions;
 export default callSlice.reducer;

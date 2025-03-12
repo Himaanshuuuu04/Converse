@@ -1,19 +1,19 @@
 import { Routes, Route, Navigate,useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { checkAuth } from "./redux/slice/authSlice";
+import { checkAuth, connectSocket } from "./redux/slice/authSlice";
 import { ProgressDemo } from "./components/Demo/ProgressDemo";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import SignIn from "./pages/SignIn";
 import UpdateProfile from "./pages/UpdateProfile";
 import Layout from "./components/ui/Layout";
-import Call from "./pages/Call";
 import { SparklesCore } from "@/components/ui/sparkles";
 import { Toaster } from "@/components/ui/toaster";
 import Logout from "./pages/Logout";
 import Aurora from "@/components/ui/Backgrounds/Aurora/Aurora";
-
+import OutgoingCall from "./pages/OutgoingCall";
+import IncomingCall from "./pages/IncomingCall";
 export default function App() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -21,10 +21,13 @@ export default function App() {
 
   useEffect(() => {
     if(!isCheckingUser)
-    dispatch(checkAuth(navigate));
+    dispatch(checkAuth(navigate));  
+  setTimeout(() => {
+    dispatch(connectSocket(navigate));
+  }, 3000);
   }, [dispatch]);
 
-  console.log(onlineUsers);
+
 
   if (isCheckingUser) {
     return (
@@ -79,8 +82,12 @@ export default function App() {
             element={ <Logout/> }
           />
           <Route 
-            path="/call/:id"
-            element={ <Call/> }
+            path="/outgoingCall/:id"
+            element={ <OutgoingCall/> }
+          />
+          <Route 
+            path="/incomingCall/:id"
+            element={ <IncomingCall/> }
           />
           <Route
             path="*"

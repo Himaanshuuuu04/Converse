@@ -18,7 +18,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ContextMenuDemo } from "./ContextMenuDemo";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector,shallowEqual } from "react-redux";
 import { getUsers, setSelectedUser } from "@/redux/slice/chatSlice";
 import defaultUserImage from "../../assets/defaultUserImage.jpeg";
 import { Input } from "../ui/input";
@@ -26,18 +26,20 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const CardDemo = ({ className, ...props }) => {
   const dispatch = useDispatch();
-  const { users, selectedUser, isUserLoading } = useSelector((state) => state.chat);
-  const { onlineUsers } = useSelector((state) => state.auth);
+  const { users, selectedUser, isUserLoading } = useSelector((state) => state.chat, shallowEqual);
+  const { onlineUsers } = useSelector((state) => state.auth,shallowEqual);
   const [viewOnlineUsers, setViewOnlineUsers] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [hasFetchedUsers, setHasFetchedUsers] = useState(false);
 
   useEffect(() => {
     if (!hasFetchedUsers && !isUserLoading && users.length === 0) {
+      setTimeout(() => {
       dispatch(getUsers());
       setHasFetchedUsers(true);
+      }, 1000);
     }
-  }, [hasFetchedUsers, isUserLoading, users,dispatch]);
+  }, [dispatch]);
 
   const handleToggleOnlineUsers = useCallback(() => {
     setViewOnlineUsers((prev) => !prev);
