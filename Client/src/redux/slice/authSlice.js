@@ -201,6 +201,10 @@ export const connectSocket = (navigate) => (dispatch, getState) => {
     });
     socket.on("callEnded", (data) => {
       console.log("Call ended:", data);
+      dispatch(setIncomingOffer(null));
+      dispatch(setCallerID(null));
+      dispatch(setCallerData(null));
+      navigate("/");
     });
     socket.on("error", (err) => {
       console.error("Socket error:", err);

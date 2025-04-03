@@ -142,16 +142,9 @@ export const deleteMessage = async (req, res) => {
     }
 }
 
-<<<<<<< HEAD
-export const generateCall = (req,res) => {
-    try{
-        const {id,offer,senderData} = req.body;
-        console.log("call generated from ",req.user._id," to ",id);
-=======
 export const generateCall = (req, res) => {
     try {
         const { id, offer, senderData } = req.body;
->>>>>>> 9c7dbb17f40d4b6bac2bfa370cd67df36a5063db
         const receiverSocketID = getReceiverSocketID(id);
         if (receiverSocketID) {
             io.to(receiverSocketID).emit('incomingCall', { senderID: req.user._id, senderData: senderData, offer });
