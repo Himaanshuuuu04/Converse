@@ -56,13 +56,11 @@ export const CardDemo = ({ className, ...props }) => {
     [dispatch]
   );
 
-  const filteredUsers = useMemo(() => {
-    return users.filter(
-      (user) =>
-        (!viewOnlineUsers || onlineUsers.includes(user._id)) &&
-        user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [users, viewOnlineUsers, searchTerm, onlineUsers]);
+  const filteredUsers = users.filter(
+    (user) =>
+      (!viewOnlineUsers || onlineUsers.includes(user._id)) &&
+      user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <Card className={cn("md:w-[380px] w-screen", className)} {...props}>

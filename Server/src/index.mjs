@@ -29,8 +29,8 @@ if (process.env.NODE_ENV === "production") {
     res.sendFile(path.join(__dirname, "../Client", "dist", "index.html"));
   });
 }
-app.use("/auth", authRouter);
-app.use("/message", messageRouter);
+app.use("api/auth", authRouter);
+app.use("api/message", messageRouter);
 
 server.listen(PORT, () => {
   console.log("Server is running on port: " + PORT);
