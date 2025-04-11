@@ -1,5 +1,5 @@
 
-```markdown
+
 # Converse - Full Stack Realtime Chat Application
 
 ## Overview
@@ -209,4 +209,3 @@ VITE_API_URL=http://localhost:3000
 ## License
 
 This project is licensed under the MIT License.
-```
