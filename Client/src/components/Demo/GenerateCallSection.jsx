@@ -12,185 +12,180 @@ import { Separator } from "../ui/separator";
 import { PhoneOff, VideoOff, MicOff } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { endCall, generateCall } from "@/redux/slice/callSlice";
-import peer from "@/service/peer";
+import Peer from 'simple-peer';
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { Toggle } from "@/components/ui/toggle"
-
-
+import { Toggle } from "@/components/ui/toggle";
 
 export default function GenerateCallSection({ id }) {
+  // const toast = useToast();
+  // const dispatch = useDispatch();
+  // const navigate = useNavigate();
+  // const { callerData, answerOffer } = useSelector((state) => state.call);
+  // const [myVideo, setMyVideo] = useState(null);
+  // const [remoteVideo, setRemoteVideo] = useState(null);
+  // const mainVideoRef = useRef(null);
+  // const overlayVideoRef = useRef(null);
+  // const peerRef = useRef(null); // Reference to SimplePeer instance
 
-  const toast = useToast();
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { callerData,answerOffer } = useSelector((state) => state.call);
-  const [myVideo, setMyVideo] = useState(null);
-  const [remoteVideo, setRemoteVideo] = useState(null);
-  const mainVideoRef = useRef(null);
-  const overlayVideoRef = useRef(null);
-  const isMountedRef = useRef(true); // Track component mount status
+  // const handleEndCall = () => {
+  //   if (myVideo) {
+  //     myVideo.getTracks().forEach((track) => {
+  //       track.enabled = false;
+  //       track.stop();
+  //     });
+  //     setMyVideo(null);
+  //   }
+  //   if (mainVideoRef.current) {
+  //     mainVideoRef.current.srcObject = null;
+  //   }
+  //   if (overlayVideoRef.current) {
+  //     overlayVideoRef.current.srcObject = null;
+  //   }
+  //   if (peerRef.current) {
+  //     peerRef.current.destroy();
+  //     peerRef.current = null;
+  //   }
+  //   dispatch(endCall({ toast, navigate }));
+  // };
 
-  const handleEndCall = () => {
-    if (myVideo) {
-      myVideo.getTracks().forEach((track) => {
-        track.enabled = false;
-        track.stop();
-      });
-      setMyVideo(null);
-    }
-    if (mainVideoRef.current) {
-      mainVideoRef.current.srcObject = null;
-    }
-    if (overlayVideoRef.current) {
-      overlayVideoRef.current.srcObject = null;
-    }
-    dispatch(endCall({ toast, navigate }));
-  };
+  // const handleCallUser = useCallback(async () => {
+  //   try {
+  //     const stream = await navigator.mediaDevices.getUserMedia({
+  //       video: true,
+  //       audio: true,
+  //     });
+  
+  //     // Validate media stream
+  //     if (!stream || stream.getVideoTracks().length === 0) {
+  //       throw new Error('Camera access denied');
+  //     }
+  
+  //     // 3. Verify peer initialization
+  //     const peer = new Peer({
+  //       initiator: true,
+  //       trickle: true, // Switch to true for better NAT traversal
+  //       stream: stream,
+  //       config: {
+  //         iceServers: [
+  //           { urls: 'stun:stun.l.google.com:19302' },
+  //           { urls: 'stun:global.stun.twilio.com:3478?transport=udp' }
+  //         ]
+  //       }
+  //     });
+  
+  //     // 4. Add connection state handlers
+  //     peer.on('connect', () => {
+  //       console.log('Peer connection established');
+  //     });
+  
+  //     peer.on('error', err => {
+  //       console.error('Peer connection error:', err);
+  //       toast({ title: 'Connection failed', variant: 'destructive' });
+  //     });
+  
+  //     peerRef.current = peer;
+  //   } catch (err) {
+  //     console.error("Media initialization failed:", err);
+  //     toast({ 
+  //       title: "Camera/microphone access required",
+  //       description: "Please check your device permissions",
+  //       variant: "destructive" 
+  //     });
+  //   }
+  // },[dispatch, id]);
 
-  const handleCallUser = useCallback(async () => {        
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true,
-      });
-      if (!isMountedRef.current) {
-        // Component unmounted, so stop the stream and exit.
-        stream.getTracks().forEach((track) => track.stop());
-        return;
-      }
-      setMyVideo(stream);
-      // if (mainVideoRef.current) {
-      //   mainVideoRef.current.srcObject = stream;
-      // }
-      if (overlayVideoRef.current) {
-        overlayVideoRef.current.srcObject = stream;
-      }
-      const offer = await peer.getOffer();
-      if (isMountedRef.current) {
-        dispatch(generateCall({ toast, offer, id }));
-      }
-    } catch (err) {
-      console.log("Error in getting user media: ", err);
-    }
-  }, [dispatch, id]);
+  // useEffect(() => {
+  //   if (answerOffer && peerRef.current) {
+  //     peerRef.current.signal(answerOffer);
+  //   }
+  // }, [answerOffer]);
+
+  // useEffect(() => {
+  //   handleCallUser();
+  //   return () => {
+  //     handleEndCall();
+  //   };
+  // }, []);
+
+  // return (
+  //   <div className="flex items-center justify-center h-full w-full">
+  //     <Card className="rounded-none w-full h-full relative overflow-hidden">
+  //       <CardHeader className="text-center py-4">
+  //         <CardTitle>{callerData.fullName?callerData.fullname:"user"}</CardTitle>
+  //         <CardDescription>Video Call</CardDescription>
+  //       </CardHeader>
+  //       <Separator />
+  //       <CardContent className="flex justify-center items-center p-4">
+  //         {/* Video Container */}
+  //         <div className="w-full h-[calc(100vh-25vh)] max-w-4xl relative rounded-xl overflow-hidden">
+  //           {remoteVideo ? (
+  //             <video
+  //               ref={mainVideoRef}
+  //               autoPlay
+  //               playsInline
+  //               className="absolute top-0 left-0 w-full h-full"
+  //             />
+  //           ) : (
+  //             <div className="flex items-center justify-center w-full h-full bg-gray-200 text-gray-500">
+  //               Waiting for response...
+  //             </div>
+  //           )}
+  //         </div>
+  //         {/* Smaller Video - Overlay */}
+  //         <div className="absolute bottom-4 right-4 w-1/4 h-1/4 rounded-lg overflow-hidden shadow-lg border bg-black">
+  //           {myVideo && (
+  //             <video
+  //               ref={overlayVideoRef}
+  //               autoPlay
+  //               playsInline
+  //               className="w-full h-full"
+  //             />
+  //           )}
+  //         </div>
+  //       </CardContent>
+  //       <CardFooter className="flex justify-center gap-6 items-center py-4 px-6">
+  //         <Toggle
+  //           variant="outline"
+  //           onClick={() =>
+  //             myVideo
+  //               ?.getVideoTracks()
+  //               .forEach((track) => (track.enabled = !track.enabled))
+  //           }
+  //         >
+  //           <VideoOff />
+  //         </Toggle>
+  //         <Button
+  //           variant="outline"
+  //           className="bg-red-700"
+  //           onClick={handleEndCall}
+  //         >
+  //           <PhoneOff />
+  //         </Button>
+  //         <Toggle
+  //           variant="outline"
+  //           onClick={() =>
+  //             myVideo
+  //               ?.getAudioTracks()
+  //               .forEach((track) => (track.enabled = !track.enabled))
+  //           }
+  //         >
+  //           <MicOff />
+  //         </Toggle>
+  //       </CardFooter>
+  //     </Card>
+  //   </div>
+  // );
 
 
   useEffect(() => {
-    if (answerOffer) {
-      (async () => {
-        try {
-          await peer.setLocalDescription(answerOffer);
-          for(const track of myVideo?.getTracks() || []) {
-            peer.peer.addTrack(track, myVideo);
-          }
-        } catch (err) {
-          console.log("Error in accepting call: ", err);
-        }
-      })();
-    }
-  }, [answerOffer, myVideo]);
-
-  useEffect(() => {
-    const handleTrackEvent = async (event) => {
-      if (!remoteVideo) {
-        setRemoteVideo(event.streams[0]);
-        if (mainVideoRef.current) {
-          mainVideoRef.current.srcObject = event.streams[0];
-        }
-      }
-    };
-
-    peer.peer.addEventListener("track", handleTrackEvent);
-    return () => {
-      peer.peer.removeEventListener("track", handleTrackEvent);
-    };
-  }, [remoteVideo]);
-
-  // Run the call setup only once on mount.
-  useEffect(() => {
-    handleCallUser();
-    return () => {
-      if (myVideo) {
-        myVideo.getTracks().forEach((track) => {
-          track.enabled = false;
-          track.stop();
-        });
-        setMyVideo(null);
-      }
-      if (mainVideoRef.current) {
-        mainVideoRef.current.srcObject = null;
-      }
-      if (overlayVideoRef.current) {
-        overlayVideoRef.current.srcObject = null;
-      }
-    }
-  }, []);
-
+        const peer = new Peer({ initiator: true });
+        peer.on('signal', data => console.log('Signal:', data));
+        return () => peer.destroy();
+      }, []);
   return (
-    <div className="flex items-center justify-center h-full w-full">
-      <Card className="rounded-none w-full h-full relative overflow-hidden">
-        <CardHeader className="text-center py-4">
-          <CardTitle>{callerData.fullName || "user"}</CardTitle>
-          <CardDescription>Video Call</CardDescription>
-        </CardHeader>
-        <Separator />
-        <CardContent className="flex justify-center items-center p-4">
-          {/* Video Container */}
-          <div className="w-full h-[calc(100vh-25vh)] max-w-4xl relative rounded-xl overflow-hidden">
-            {remoteVideo ? (
-              <video
-                ref={mainVideoRef}
-                autoPlay
-                playsInline
-                
-                className="absolute top-0 left-0 w-full h-full"
-              />
-            ): (
-              <div className="flex items-center justify-center w-full h-full bg-gray-200 text-gray-500">
-                Waiting for response...
-              </div>
-            )}
-          </div>
-          {/* Smaller Video - Overlay */}
-          <div className="absolute bottom-4 right-4 w-1/4 h-1/4 rounded-lg overflow-hidden shadow-lg border bg-black">
-            {myVideo && (
-              <video
-                ref={overlayVideoRef}
-                autoPlay
-                playsInline
-                
-                className="w-full h-full"
-              />
-            )}
-          </div>
-        </CardContent>
-        <CardFooter className="flex justify-center gap-6 items-center py-4 px-6">
-          <Toggle
-            variant="outline"
-            onClick={() =>
-              myVideo?.getVideoTracks().forEach(
-                (track) => (track.enabled = !track.enabled)
-              )
-            }
-          >
-            <VideoOff />
-          </Toggle>
-          <Button variant="outline" className="bg-red-700" onClick={handleEndCall}>
-            <PhoneOff />
-          </Button>
-          <Toggle
-            variant="outline"
-            onClick={() =>
-              myVideo?.getAudioTracks().forEach(
-                (track) => (track.enabled = !track.enabled)
-              )
-            }
-          >
-            <MicOff />
-          </Toggle>
-        </CardFooter>
-      </Card>
-    </div>
+          <div className="flex items-center justify-center h-full w-full">
+            test
+            </div>
   );
 }

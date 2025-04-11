@@ -12,52 +12,33 @@ import defaultUserImage from "@/assets/defaultUserImage.jpeg";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { PhoneOff, VideoOff, MicOff } from "lucide-react";
-import { PhoneIncoming } from 'lucide-react';
+import { PhoneIncoming } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { endCall, acceptCall, rejectCall } from "@/redux/slice/callSlice";
-import peer from "@/service/peer";
+import Peer from "simple-peer";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { Toggle } from "@/components/ui/toggle";
+
 export default function IncomingCallSection({ id }) {
   const toast = useToast();
-  const dispatch = useDispatch();       
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { callerData, callerID, incomingOffer } = useSelector(
     (state) => state.call
   );
   const [myVideo, setMyVideo] = useState(null);
+  const [remoteVideo, setRemoteVideo] = useState(null);
   const mainVideoRef = useRef(null);
   const overlayVideoRef = useRef(null);
-  const isMountedRef = useRef(true); // Track component mount status
+  const peerRef = useRef(null); // Reference to SimplePeer instance
 
   const handleRejectCall = () => {
-    dispatch(rejectCall({ toast,navigate,id:callerID }));
-  };
-  
-
-  // useEffect(() => {
-  //   return () => {
-  //     isMountedRef.current = false;
-  //     // Cleanup video streams on unmount
-  //     if (myVideo) {
-  //       myVideo.getTracks().forEach(track => track.stop());
-  //     }
-  //   };
-  // }, []);
-
-  useEffect(() => {
-    // Assign video streams once elements are rendered
-    if (myVideo) {
-      if (overlayVideoRef.current) {
-        overlayVideoRef.current.srcObject = myVideo;
-      }
-      // Uncomment if using mainVideoRef
-      // if (mainVideoRef.current) {
-      //   mainVideoRef.current.srcObject = myVideo;
-      // }
+    if (peerRef.current) {
+      peerRef.current.destroy();
+      peerRef.current = null;
     }
-  }, [myVideo]);
+    dispatch(rejectCall({ toast, navigate, id: callerID }));
+  };
 
   const handleIncomingCall = useCallback(async () => {
     try {
@@ -65,53 +46,81 @@ export default function IncomingCallSection({ id }) {
         video: true,
         audio: true,
       });
-      if (!isMountedRef.current) {
-        stream.getTracks().forEach(track => track.stop());
-        return;
-      }
-      setMyVideo(stream); // Triggers re-render and useEffect
-      const answer = await peer.getAnswer(incomingOffer);
-      if (isMountedRef.current) {
+      setMyVideo(stream);
+
+      const peer = new Peer({
+        initiator: false,
+        trickle: true,
+        stream,
+      });
+
+      peer.on('signal', (answer) => {
         dispatch(acceptCall({ toast, answer, id: callerID }));
+      });
+
+      peer.on('error', err => {
+        console.error('Peer error:', err);
+        toast({ title: 'Connection error', variant: 'destructive' });
+      });
+
+      if (incomingOffer) {
+        peer.signal(incomingOffer);
+        peerRef.current = peer;
       }
     } catch (err) {
-      console.log("Error in getting user media: ", err);
-      toast({ title: "Failed to access camera/microphone" });
+      console.error("Media access error:", err);
+      toast({ title: "Camera/microphone access required", variant: "destructive" });
     }
-  }, [dispatch, callerID, incomingOffer]); 
+  }, [dispatch, callerID, incomingOffer]);
 
-  
+  useEffect(() => {
+    return () => {
+      if (peerRef.current) {
+        peerRef.current.destroy();
+        peerRef.current = null;
+      }
+      if (myVideo) {
+        myVideo.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, [myVideo]);
 
   return (
     <div className="flex items-center justify-center h-full w-full">
       <Card className="rounded-none w-full h-full relative overflow-hidden">
         <CardHeader className="text-center py-4">
-          <CardTitle>{callerData.fullName?callerData.fullName:"user"}</CardTitle>
+          <CardTitle>{callerData.fullName || "user"}</CardTitle>
           <CardDescription>Video Call</CardDescription>
         </CardHeader>
         <Separator />
         <CardContent className="flex justify-center items-center p-4">
           {/* Video Container */}
           <div className="w-full h-[calc(100vh-25vh)] max-w-4xl relative rounded-xl overflow-hidden">
-            {/* {myVideo && (
+            {remoteVideo ? (
               <video
                 ref={mainVideoRef}
                 autoPlay
                 playsInline
-                
                 className="absolute top-0 left-0 w-full h-full"
               />
-            )} */}
-            <div className="bg-white/10 w-full h-full rounded-lg overflow-hidden shadow-lg border flex items-center justify-center">
-              <Avatar  className="w-80 h-80 object-cover">
-                <AvatarImage
-                  src={callerData.profileImage?callerData.profileImage:defaultUserImage}
-                  alt={callerData.fullName?callerData.fullName:"user"}
-                  className="w-full h-full object-cover"
-                />
-                <AvatarFallback>{callerData.fullName?callerData.fullName:"user"}</AvatarFallback>
-              </Avatar>
-            </div>
+            ) : (
+              <div className="bg-white/10 w-full h-full rounded-lg overflow-hidden shadow-lg border flex items-center justify-center">
+                <Avatar className="w-80 h-80 object-cover">
+                  <AvatarImage
+                    src={
+                      callerData.profileImage
+                        ? callerData.profileImage
+                        : defaultUserImage
+                    }
+                    alt={callerData.fullName || "user"}
+                    className="w-full h-full object-cover"
+                  />
+                  <AvatarFallback>
+                    {callerData.fullName || "user"}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+            )}
           </div>
           {/* Smaller Video - Overlay */}
           <div className="absolute bottom-4 right-4 w-1/4 h-1/4 rounded-lg overflow-hidden shadow-lg border bg-black">
@@ -131,42 +140,15 @@ export default function IncomingCallSection({ id }) {
             className="bg-green-700"
             onClick={handleIncomingCall}
           >
-           <PhoneIncoming/>
+            <PhoneIncoming />
           </Button>
-          <Button 
+          <Button
             variant="outline"
             className="bg-red-700"
             onClick={handleRejectCall}
           >
-            <PhoneOff/>
-          </Button>
-          {/* <Toggle
-            variant="outline"
-            onClick={() =>
-              myVideo
-                ?.getVideoTracks()
-                .forEach((track) => (track.enabled = !track.enabled))
-            }
-          >
-            <VideoOff />
-          </Toggle>
-          <Button
-            variant="outline"
-            className="bg-red-700"
-            onClick={handleEndCall}
-          >
             <PhoneOff />
           </Button>
-          <Toggle
-            variant="outline"
-            onClick={() =>
-              myVideo
-                ?.getAudioTracks()
-                .forEach((track) => (track.enabled = !track.enabled))
-            }
-          >
-            <MicOff />
-          </Toggle> */}
         </CardFooter>
       </Card>
     </div>

@@ -3,6 +3,9 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 
 export default defineConfig({
+  define: {
+    global: {},
+  },
   plugins: [react()],
   esbuild: {
     logLevel: 'silent' // Suppresses warnings
@@ -13,7 +16,7 @@ export default defineConfig({
     },
   },  
   optimizeDeps: {
-    include: ["@shadcn/ui"], // Optimizes ShadCN components
+    include: ["@shadcn/ui","simple-peer"], // Optimizes ShadCN components
   },
 });
   

@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import {setCallerData } from "@/redux/slice/callSlice";
+import { setCallerData } from "@/redux/slice/callSlice";
 export default function TopBarDemo() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -50,7 +50,7 @@ export default function TopBarDemo() {
     }
   }, [selectedUser, dispatch]);
 
-  const handleCall = () => {
+  const handleCall = async () => {
     if (!onlineUsers.includes(selectedUser)) {
       toast({
         variant: "destructive",
@@ -59,8 +59,24 @@ export default function TopBarDemo() {
       });
       return;
     }
-    dispatch(setCallerData(selectedUserData));
-    navigate(`/outgoingCall/${selectedUser}`);
+    // const userStream = await navigator.mediaDevices.getUserMedia({
+    //   video: true,
+    //   audio: true,
+    // });
+    // if (userStream && userStream.getVideoTracks().length > 0) {
+    //   dispatch(setCallerData(selectedUserData));
+    //   navigate(`/outgoingCall/${selectedUser}`);
+    // } else {
+    //   toast({
+    //     variant: "destructive",
+    //     title: "Error",
+    //     description: "Unable to access camera and microphone",
+    //   });
+    toast({
+      title: "Calling feature is not available yet",
+      description: "This feature is under development",
+    });
+    return;
   };
 
   return (

@@ -14,6 +14,7 @@ import Logout from "./pages/Logout";
 import Aurora from "@/components/ui/Backgrounds/Aurora/Aurora";
 import OutgoingCall from "./pages/OutgoingCall";
 import IncomingCall from "./pages/IncomingCall";
+
 export default function App() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -89,6 +90,7 @@ export default function App() {
             path="/incomingCall/:id"
             element={ <IncomingCall/> }
           />
+        
           <Route
             path="*"
             element={<div>404 Not Found</div>}
