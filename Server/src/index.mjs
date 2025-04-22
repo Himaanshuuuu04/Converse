@@ -19,21 +19,21 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: process.env.FRONTEND_URL || "http://localhost:5173" || "http://localhost:4173",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-const __dirname = path.resolve();
+// const __dirname = path.resolve();
 
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../Client/dist")));
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../Client/dist/index.html"));
-  });
-}
+// if (process.env.NODE_ENV === "production") {
+//   app.use(express.static(path.join(__dirname, "../Client/dist")));
+//   app.get("*", (req, res) => {
+//     res.sendFile(path.join(__dirname, "../Client/dist/index.html"));
+//   });
+// }
 
 
 // API Routes
