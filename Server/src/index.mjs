@@ -26,14 +26,14 @@ app.use(
   })
 );
 
-const __dirname = path.resolve();
+// const __dirname = path.resolve();
 
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../Client/dist")));
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../Client/dist/index.html"));
-  });
-}
+// if (process.env.NODE_ENV === "production") {
+//   app.use(express.static(path.join(__dirname, "../Client/dist")));
+//   app.get("*", (req, res) => {
+//     res.sendFile(path.join(__dirname, "../Client/dist/index.html"));
+//   });
+// }
 
 
 // API Routes
