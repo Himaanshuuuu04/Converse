@@ -27,7 +27,7 @@ const initialState = {
 
 export const checkAuth = createAsyncThunk(
   "auth/checkAuth",
-  async (_,{ rejectWithValue}) => {
+  async (_, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.get("/auth/check");
       return { authUser: res.data };
@@ -172,6 +172,7 @@ export const connectSocket = (navigate) => (dispatch, getState) => {
       query: {
         userID: auth.authUser._id,
       },
+      withCredentials: true,
     });
     socket.on("connect", () => {
       console.log("✅ Socket connected successfully.");
@@ -205,7 +206,7 @@ export const connectSocket = (navigate) => (dispatch, getState) => {
     socket.on("error", (err) => {
       console.error("Socket error:", err);
     });
-   
+
     dispatch(setSocket({ socket }));
     socket.on("disconnect", () => {
       console.log("❌ Socket disconnected.");
