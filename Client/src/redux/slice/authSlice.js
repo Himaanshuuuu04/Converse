@@ -172,6 +172,7 @@ export const connectSocket = (navigate) => (dispatch, getState) => {
       query: {
         userID: auth.authUser._id,
       },
+      withCredentials: true,
     });
     socket.on("connect", () => {
       console.log("✅ Socket connected successfully.");
