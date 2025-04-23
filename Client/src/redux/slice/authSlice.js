@@ -168,10 +168,16 @@ export const logout = createAsyncThunk(
 export const connectSocket = (navigate) => (dispatch, getState) => {
   const { auth } = getState();
   if (auth.authUser && !auth.socket) {
+    console.log("Connecting socket...");
+    
     const socket = io(import.meta.env.VITE_AXIOS_BASE_URL, {
       query: {
         userID: auth.authUser._id,
       },
+      autoConnect: true,
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
       transports: ['websocket'],
       withCredentials: true,
     });
