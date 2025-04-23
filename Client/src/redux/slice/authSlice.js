@@ -172,7 +172,7 @@ export const connectSocket = (navigate) => (dispatch, getState) => {
       query: {
         userID: auth.authUser._id,
       },
-      transports: ['websocket', 'polling'],
+      transports: ['websocket'],
       withCredentials: true,
     });
     socket.on("connect", () => {
