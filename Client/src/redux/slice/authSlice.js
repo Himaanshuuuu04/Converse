@@ -10,7 +10,7 @@ import {
   setCallRejected,
   setOutgoingCall,
   setCallerID,
-  setAnswerOffer
+  setAnswerOffer,
 } from "./callSlice";
 
 const initialState = {
@@ -169,17 +169,17 @@ export const connectSocket = (navigate) => (dispatch, getState) => {
   const { auth } = getState();
   if (auth.authUser && !auth.socket) {
     console.log("Connecting socket...");
-    
-    const socket = io(import.meta.env.VITE_AXIOS_BASE_URL, {
+
+    const socket = io(import.meta.env.VITE_SOCKET_URL, {
       query: {
         userID: auth.authUser._id,
       },
-      autoConnect: true,
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-      transports: ['websocket'],
-      withCredentials: true,
+      // autoConnect: true,
+      // reconnection: true,
+      // reconnectionAttempts: 5,
+      // reconnectionDelay: 1000,
+      // transports: ["websocket"],
+      // withCredentials: true,
     });
     socket.on("connect", () => {
       console.log("✅ Socket connected successfully.");

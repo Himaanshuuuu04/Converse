@@ -9,7 +9,6 @@ export const generateToken = (id, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV !== "development",
     sameSite: "None",
-    path: "/", // explicitly define
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
   });
 
